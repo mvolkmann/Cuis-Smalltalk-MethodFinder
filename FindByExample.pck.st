@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 2:16:13 pm'!
+'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 2:48:53 pm'!
 'Description '!
-!provides: 'FindByExample' 1 18!
+!provides: 'FindByExample' 1 19!
 SystemOrganization addCategory: 'FindByExample'!
 
 
@@ -15,11 +15,11 @@ Finder class
 	instanceVariableNames: ''!
 
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 14:16:12'!
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 14:47:22'!
 methodsByExample: values
 	"Find all methods that return the last value when
 	the first value is the receiver and the other values are arguments."
-	| actual argCount arguments expected matches receiver receiverCopy selectors skipSet |
+	| actual argCount arguments argumentsCopy expected matches receiver receiverCopy selectors skipSet |
 
 	values size < 2 ifTrue: [
 		Error signal: 'requires at least two values'
@@ -68,17 +68,14 @@ methodsByExample: values
 
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
-	"count := 0."
 	matches := selectors select: [ :selector |
-		"count := count + 1.
-		count > 210 ifTrue: [
-			selector logAs: 'selector'.
-			self halt.
-		]."
-		"Some methods modified the receiver, so we need to save and restore it."
+		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiver veryDeepCopy.
-		actual := [receiver perform: selector withArguments: arguments] on: Error do: [ :ex | nil ].
-		receiver := receiverCopy.
+		
+		"Some methods modify arguments, so we operate on a copy."
+		argumentsCopy := arguments veryDeepCopy.
+
+		actual := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
 		actual = expected.
 	].
 
@@ -86,8 +83,11 @@ methodsByExample: values
 	matches size = 0
 		ifTrue: [ 'no methods found' print ]
 		ifFalse: [
-			| template |
-			template := 'The following methods on {1} with arguments {2} return {3}:'.
-			template format: { receiver printString. arguments printString. expected printString} :: print.
+			| argString template |
+			argString := arguments
+				ifEmpty: 'no arguments'
+				ifNotEmpty: [ 'arguments {1}' format: { arguments } ].
+			template := 'The following methods on {1} with {2} return {3}:'.
+			template format: { receiver printString. argString. expected printString} :: print.
 			matches asSortedCollection do: [ :match | '- ', match :: print ].
 		].! !

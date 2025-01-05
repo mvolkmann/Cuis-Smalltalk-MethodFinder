@@ -14,7 +14,7 @@ For example:
 
 - `Finder methodsByExample: #('foo' 'FOO')` prints `asUppercase` and `translateToUppercase`.
 - `Finder methodsByExample: #('foo', 'Foo')` prints `capitalized`.
-- `Finder methodsByExample: #('foo' 'bar' 'foobar')` prints `append`.
+- `Finder methodsByExample: #('foo' 'bar' 'foobar')` prints `,` and `append`.
 - `Finder methodsByExample: #('foo bar' #('foo' 'bar'))` prints `substrings`.
 - `Finder methodsByExample: #('foobar' 'foo' true)` prints `beginsWith:` and more.
 - `Finder methodsByExample: #('foobar' 'bar' true)` prints `endsWith:` and more.
