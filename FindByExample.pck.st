@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 10:19:04 am'!
+'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 1:52:44 pm'!
 'Description '!
-!provides: 'FindByExample' 1 1!
+!provides: 'FindByExample' 1 16!
 SystemOrganization addCategory: 'FindByExample'!
 
 
@@ -15,7 +15,7 @@ Finder class
 	instanceVariableNames: ''!
 
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 10:19:01'!
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 13:52:30'!
 methodsByExample: values
 	"Find all methods that return the last value when first value is the receiver and the other values are arguments."
 	| actual argCount arguments expected matches receiver receiverCopy selectors skip |
@@ -37,9 +37,14 @@ methodsByExample: values
 		#caseError
 		#deprecatedMethod
 		#edit
+		#executeMethod:
 		#explore
 		#inspect
+		#inspectWithLabel:
+		#logAs:
+		#notify:
 		#print
+		#primitiveError:
 		#yourself
 	).
 	
@@ -62,6 +67,8 @@ methodsByExample: values
 	matches size = 0
 		ifTrue: [ 'no methods found' print ]
 		ifFalse: [
-			'The following methods match:' print.
+			| template |
+			template := 'The following methods on {1} with arguments {2} return {3}:'.
+			template format: { receiver printString. arguments printString. expected printString} :: print.
 			matches asSortedCollection do: [ :match | '- ', match :: print ].
 		].! !
