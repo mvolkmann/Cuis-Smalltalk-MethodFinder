@@ -10,4 +10,8 @@ That method is passed an array where:
 
 It finds all matching method selectors and prints them in the Transcript.
 
-For example, `Finder methodsByExample: #('foo', 'Foo')` prints "capitalized".
+For example:
+
+- `Finder methodsByExample: #('foo', 'Foo')` prints "capitalized".
+- `Finder methodsByExample: #( #(1 2 3 4) 2.5)` prints "average" and "mean".
+
