@@ -23,4 +23,4 @@ For example:
 - `Finder methodsByExample: #(#(1 2 3 4) 2.5)` prints `+` and more.
 - `Finder methodsByExample: #(#(1 2 3 4) 2.5)` prints `average` and `mean`.
 - `Finder methodsByExample: #(#('banana' 'cherry' 'apple') #('apple' 'banana' 'cherry'))` prints `shuffled`, `sort`, and `sorted`.
-
+- `double := [:x | x * 2]. Finder methodsByExample: { #(1 2 3). double. #(2 4 6) }.` prints `collect:` and 4 more surprising results

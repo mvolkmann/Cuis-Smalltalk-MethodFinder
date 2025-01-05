@@ -1,13 +1,13 @@
-'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 2:48:53 pm'!
+'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 5:20:58 pm'!
 'Description '!
-!provides: 'FindByExample' 1 19!
+!provides: 'FindByExample' 1 21!
 SystemOrganization addCategory: 'FindByExample'!
 
 
 !classDefinition: #Finder category: 'FindByExample'!
 Object subclass: #Finder
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'SkipSet'
 	poolDictionaries: ''
 	category: 'FindByExample'!
 !classDefinition: 'Finder class' category: 'FindByExample'!
@@ -15,24 +15,12 @@ Finder class
 	instanceVariableNames: ''!
 
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 14:47:22'!
-methodsByExample: values
-	"Find all methods that return the last value when
-	the first value is the receiver and the other values are arguments."
-	| actual argCount arguments argumentsCopy expected matches receiver receiverCopy selectors skipSet |
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 17:20:11'!
+initialize
 
-	values size < 2 ifTrue: [
-		Error signal: 'requires at least two values'
-	].
-
-	receiver := values first.
-	expected := values last.
-	arguments := values allButFirst allButLast.
-	argCount := arguments size.
-	
 	"Skip these selectors because they have
 	side effects that are bad for this method."
-	skipSet := Set newFrom: #(
+	SkipSet := IdentitySet newFrom: #(
 		#basicInspect
 		#browseClassHierarchy
 		#caseError
@@ -51,7 +39,22 @@ methodsByExample: values
 		#print
 		#primitiveError:
 		#yourself
-	).
+	).! !
+
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 17:20:23'!
+methodsByExample: values
+	"Find all methods that return the last value when
+	the first value is the receiver and the other values are arguments."
+	| actual argCount arguments argumentsCopy expected matches receiver receiverCopy selectors |
+
+	values size < 2 ifTrue: [
+		Error signal: 'requires at least two values'
+	].
+
+	receiver := values first.
+	expected := values last.
+	arguments := values allButFirst allButLast.
+	argCount := arguments size.
 
 	"Find all the selectors in the receiver class and its subclasses."	
 	selectors := receiver class allSelectors.
@@ -62,7 +65,7 @@ methodsByExample: values
 		| thisArgCount |
 		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
 		thisArgCount ~= argCount ::
-			or: [ skipSet includes: selector ] ::
+			or: [ SkipSet includes: selector ] ::
 			or: [ selector asLowercase includesSubString: 'halt' ]
 	].
 
@@ -91,3 +94,4 @@ methodsByExample: values
 			template format: { receiver printString. argString. expected printString} :: print.
 			matches asSortedCollection do: [ :match | '- ', match :: print ].
 		].! !
+Finder initialize!
