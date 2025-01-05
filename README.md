@@ -19,8 +19,8 @@ For example:
 - `Finder methodsByExample: #('foobar' 'foo' true)` prints `beginsWith:` and more.
 - `Finder methodsByExample: #('foobar' 'bar' true)` prints `endsWith:` and more.
 - `Finder methodsByExample: #('foobar' 'ob' true)` prints `includesString` and more.
-- `Finder methodsByExample: #( 1 2 3 )` prints ``.
-- `Finder methodsByExample: #( #(1 2 3 4) 2.5)` prints `+` and more.
-- `Finder methodsByExample: #( #(1 2 3 4) 2.5)` prints `average` and `mean`.
-- `Finder methodsByExample: #( #('banana' 'cherry' 'apple') #('apple' 'banana' 'cherry') )` prints `shuffled`, `sort`, and `sorted`.
+- `Finder methodsByExample: #(1 2 3)` prints ``.
+- `Finder methodsByExample: #(#(1 2 3 4) 2.5)` prints `+` and more.
+- `Finder methodsByExample: #(#(1 2 3 4) 2.5)` prints `average` and `mean`.
+- `Finder methodsByExample: #(#('banana' 'cherry' 'apple') #('apple' 'banana' 'cherry'))` prints `shuffled`, `sort`, and `sorted`.
 
