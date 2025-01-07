@@ -1,31 +1,42 @@
-'From Cuis7.3 [latest update: #6968] on 5 January 2025 at 5:20:58 pm'!
+'From Cuis7.3 [latest update: #6968] on 6 January 2025 at 8:08:12 pm'!
 'Description '!
-!provides: 'FindByExample' 1 21!
-SystemOrganization addCategory: 'FindByExample'!
+!provides: 'FindByExample' 1 56!
+SystemOrganization addCategory: #FindByExample!
 
 
-!classDefinition: #Finder category: 'FindByExample'!
+!classDefinition: #Finder category: #FindByExample!
 Object subclass: #Finder
 	instanceVariableNames: ''
 	classVariableNames: 'SkipSet'
 	poolDictionaries: ''
 	category: 'FindByExample'!
-!classDefinition: 'Finder class' category: 'FindByExample'!
+!classDefinition: 'Finder class' category: #FindByExample!
 Finder class
 	instanceVariableNames: ''!
 
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 17:20:11'!
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/6/2025 20:07:58'!
 initialize
 
 	"Skip these selectors because they have
 	side effects that are bad for this method."
 	SkipSet := IdentitySet newFrom: #(
+		#addSharedPool:
+		#allBroadAccessesTo:
+		#allBroadcastAccessesTo:
+		#allMethodCategoriesIntegratedThrough:
+		#at:
 		#basicInspect
 		#browseClassHierarchy
 		#caseError
+		#changed:
+		#chooseInstVarAlphabeticallyThenDo:
+		#chooseInstVarThenDo:
+		#commentStamp:
+		#compileAllFrom:
 		#confirm:
 		#confirm:orCancel:
+		#definesInstanceVariableNamedInHierarchy:
 		#deprecatedMethod
 		#edit
 		#editLabel:
@@ -35,13 +46,24 @@ initialize
 		#inspect
 		#inspectWithLabel:
 		#logAs:
-		#notify:
+		#methodDict:
+		#methodDictionary:
+		#newFrom:
+  		#notify:
+		#objectForDataStream:
 		#print
 		#primitiveError:
+		#removeFromSystem
+		#removeFromSystem:
+		#removeFromSystemUnlogged
+		#setName:
+		#standardMethodHeaderFor:
+		#whichSelectorsReferTo:
 		#yourself
+		#->
 	).! !
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/5/2025 17:20:23'!
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/6/2025 20:06:36'!
 methodsByExample: values
 	"Find all methods that return the last value when
 	the first value is the receiver and the other values are arguments."
@@ -71,7 +93,12 @@ methodsByExample: values
 
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
+	"log := false."
 	matches := selectors select: [ :selector |
+		"selector logAs: 'selector'."
+		"selector = #methodsDo: ifTrue: [ log := true ].
+		log ifTrue: [ self halt ]."
+			
 		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiver veryDeepCopy.
 		
@@ -79,6 +106,7 @@ methodsByExample: values
 		argumentsCopy := arguments veryDeepCopy.
 
 		actual := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
+		"log ifTrue: [ actual logAs: 'actual' ]."
 		actual = expected.
 	].
 
