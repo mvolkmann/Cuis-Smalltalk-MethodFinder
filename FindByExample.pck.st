@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 6 January 2025 at 8:08:12 pm'!
+'From Cuis7.3 [latest update: #6962] on 7 January 2025 at 8:40:24 am'!
 'Description '!
-!provides: 'FindByExample' 1 56!
+!provides: 'FindByExample' 1 58!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -15,7 +15,7 @@ Finder class
 	instanceVariableNames: ''!
 
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/6/2025 20:07:58'!
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/7/2025 08:39:35'!
 initialize
 
 	"Skip these selectors because they have
@@ -33,6 +33,7 @@ initialize
 		#chooseInstVarAlphabeticallyThenDo:
 		#chooseInstVarThenDo:
 		#commentStamp:
+		#compile:
 		#compileAllFrom:
 		#confirm:
 		#confirm:orCancel:
@@ -63,7 +64,7 @@ initialize
 		#->
 	).! !
 
-!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/6/2025 20:06:36'!
+!Finder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/7/2025 08:40:16'!
 methodsByExample: values
 	"Find all methods that return the last value when
 	the first value is the receiver and the other values are arguments."
@@ -93,11 +94,9 @@ methodsByExample: values
 
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
-	"log := false."
 	matches := selectors select: [ :selector |
-		"selector logAs: 'selector'."
-		"selector = #methodsDo: ifTrue: [ log := true ].
-		log ifTrue: [ self halt ]."
+		"selector logAs: 'selector'.
+		self halt."
 			
 		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiver veryDeepCopy.
@@ -106,7 +105,6 @@ methodsByExample: values
 		argumentsCopy := arguments veryDeepCopy.
 
 		actual := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
-		"log ifTrue: [ actual logAs: 'actual' ]."
 		actual = expected.
 	].
 
