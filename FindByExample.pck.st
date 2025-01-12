@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:36:01 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:51:21 am'!
 'Description '!
-!provides: 'FindByExample' 1 90!
+!provides: 'FindByExample' 1 91!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -26,7 +26,7 @@ LabelledInput class
 
 !classDefinition: #MethodFinderWindow category: #FindByExample!
 SearchBrowserWindow subclass: #MethodFinderWindow
-	instanceVariableNames: 'argumentsInput expectedInput receiverInput'
+	instanceVariableNames: 'argumentsInput expectedInput receiverInput resultMessage'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'FindByExample'!
@@ -206,17 +206,22 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 10:15:20'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 10:49:09'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
-	| findButton row searchBar listPane |
+	| argumentsRow findButton findButtonRow searchBar listPane |
 	
 	searchBar := LayoutMorph newColumn.
 	searchBar separation: 5.
 	
 	receiverInput := LabelledInput label: 'Receiver:'.
+	
 	argumentsInput := LabelledInput label: 'Arguments:'.
+	argumentsRow := LayoutMorph newRow.
+	argumentsRow addMorph: argumentsInput; addMorph: (LabelMorph contents: '(dot-separated)').
+	argumentsRow axisEdgeWeight: 0.
+	
 	expectedInput := LabelledInput label: 'Expected:'.
 	
 	"TODO: Disable findButton if receiverInput or expectedInput are empty."
@@ -226,14 +231,14 @@ buildMorphicWindow
 		label: 'Find Methods'.
 	"findButton disable."
 	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
+	findButtonRow := LayoutMorph newRow.
+	findButtonRow addMorph: findButton.
+	findButtonRow addMorph: (LabelMorph contents: resultMessage).
 	
 	searchBar addMorph: receiverInput.
-	row := LayoutMorph newRow.
-	row addMorph: argumentsInput; addMorph: (LabelMorph contents: '(dot-separated)').
-	row axisEdgeWeight: 0.
-	searchBar addMorph: row.
+	searchBar addMorph: argumentsRow.
 	searchBar addMorph: expectedInput.
-	searchBar addMorph: findButton.
+	searchBar addMorph: findButtonRow.
 
 	listPane := self buildMorphicMessageList.
 		
@@ -244,32 +249,42 @@ buildMorphicWindow
 		
 	model changed: #editSelection.! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 10:35:10'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 10:27:53'!
+windowColor
+
+	^ Color yellow twiceDarker! !
+
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 10:51:05'!
 findMethods
 
 	| arguments cl compiledMethod expected methods receiver selectors |
 		
+	"TODO: Get this to update the UI."
+	resultMessage := ''.
+
 	receiver := Compiler evaluate: receiverInput text.
 	arguments := Compiler evaluate: '{', argumentsInput text, '}'.
 	expected := Compiler evaluate: expectedInput text.
 	
 	selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
-	"TODO: Indicate in UI when no selectors are found."
 
 	cl := receiver class.
 	methods := selectors collect: [ :selector |
 		compiledMethod := receiver class lookupSelector: selector.
 		MethodReference class: compiledMethod methodClass selector: selector.
 	].
+	"TODO: Get this to update the UI."
+	methods isEmpty ifTrue: [ resultMessage := 'no matching methods found' ].
 	
 	"SearchBrowser does not provide a setter method for messageList."
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
 
-!MethodFinderWindow methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 10:27:53'!
-windowColor
+!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 10:48:23'!
+initialize
 
-	^ Color yellow twiceDarker! !
+	super initialize.
+	resultMessage := 'not yet executed'.! !
 
 !MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 06:46:34'!
 open
