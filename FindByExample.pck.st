@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:16:01 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:28:39 am'!
 'Description '!
-!provides: 'FindByExample' 1 87!
+!provides: 'FindByExample' 1 89!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -178,13 +178,12 @@ label: aString
 
 	label := aString! !
 
-!LabelledInput methodsFor: 'initialization' stamp: 'RMV 1/12/2025 10:14:26'!
+!LabelledInput methodsFor: 'initialization' stamp: 'RMV 1/12/2025 10:18:01'!
 buildMorph: labelString
 	
 	label := LabelMorph contents: labelString.
 	
 	textModelMorph := TextModelMorph withModel: (TextModel withText: '').
-	textModelMorph morphHeight: 15. "TODO: Why must this be set?"
 	textModelMorph askBeforeDiscardingEdits: false.
 	
 	"self borderColor: Color red; borderWidth: 1."
@@ -265,12 +264,10 @@ findMethods
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
 
-!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 09:58:06'!
-initialize
-	
-	super initialize.
-	"TODO: Why doesn't this work? It does in an inspector."
-	self borderColor: Color red.	! !
+!MethodFinderWindow methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 10:27:53'!
+windowColor
+
+	^ Color yellow twiceDarker! !
 
 !MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 06:46:34'!
 open
