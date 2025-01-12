@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 9:36:39 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 9:38:12 am'!
 'Description '!
-!provides: 'FindByExample' 1 83!
+!provides: 'FindByExample' 1 84!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -207,7 +207,7 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 09:33:30'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 09:38:09'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
@@ -219,6 +219,7 @@ buildMorphicWindow
 	receiverInput := LabelledInput label: 'Receiver:'.
 	argumentsInput := LabelledInput label: 'Arguments'.
 	expectedInput := LabelledInput label: 'Expected:'.
+	"TODO: Disable findButton if receiverInput or expectedInput are empty."
 	findButton := PluggableButtonMorph
 		model: self
 		action: #findMethods
