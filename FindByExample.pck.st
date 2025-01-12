@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 9:38:12 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 9:58:09 am'!
 'Description '!
-!provides: 'FindByExample' 1 84!
+!provides: 'FindByExample' 1 86!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -207,7 +207,7 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 09:38:09'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 09:57:47'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
@@ -224,6 +224,7 @@ buildMorphicWindow
 		model: self
 		action: #findMethods
 		label: 'Find Methods'.
+	"findButton disable."
 	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
 	
 	searchBar addMorph: receiverInput.
@@ -260,16 +261,36 @@ findMethods
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
 
-!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 09:32:11'!
+!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 09:58:06'!
 initialize
 	
 	super initialize.
-	receiverModel := TextModel withText: ''.
-	expectedModel := TextModel withText: ''.
-	! !
+	"TODO: Why doesn't this work? It does in an inspector."
+	self borderColor: Color red.	! !
 
 !MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 06:46:34'!
 open
 
 	^ self open: SearchBrowser new label: 'Method Finder'.! !
+
+!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 09:51:10'!
+worldMenuOptions
+	^ `{{
+			#submenuOf -> TheWorldMenu openLabel.
+			#itemGroup -> 10.
+			
+			"Text Editor is 10.
+			Worspace is 20.
+			Browser is 30.
+			SearchBrowser is 40.
+			MessageNames is 40.
+			Transcript is 50."
+			#itemOrder -> 41.
+			
+			#label -> 'Method Finder'.
+			#object -> MethodFinderWindow.
+			#selector -> #open.
+			#icon -> #inspectIcon.
+			#balloonText -> 'A tool for finding methods that return a given answer.'.
+		} asDictionary}`! !
 MethodFinder initialize!
