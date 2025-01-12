@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 8:26:32 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 8:31:42 am'!
 'Description '!
-!provides: 'FindByExample' 1 79!
+!provides: 'FindByExample' 1 81!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -207,7 +207,7 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 08:23:41'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 08:31:23'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
@@ -217,16 +217,16 @@ buildMorphicWindow
 	searchBar separation: 5.
 	
 	receiverInput := LabelledInput label: 'Receiver:'.
-	receiverInput text: '''foo'''.
-	searchBar addMorph: receiverInput.
+	"TODO: Add input for arguments."
 	expectedInput := LabelledInput label: 'Expected:'.
-	expectedInput text: '''FOO'''.
-	searchBar addMorph: expectedInput.
 	findButton := PluggableButtonMorph
 		model: self
 		action: #findMethods
 		label: 'Find Methods'.
 	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
+	
+	searchBar addMorph: receiverInput.
+	searchBar addMorph: expectedInput.
 	searchBar addMorph: findButton.
 
 	listPane := self buildMorphicMessageList.
@@ -238,7 +238,7 @@ buildMorphicWindow
 		
 	model changed: #editSelection.! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 08:26:31'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 08:30:00'!
 findMethods
 
 	| cl expected methods receiver selectors |
@@ -248,9 +248,11 @@ findMethods
 	
 	"TODO: Get the exact classes that implement each selector instead of assuming they are all in the receiver class."
 	selectors := MethodFinder methodsOn: receiver arguments: #() expected: expected.
+	"TODO: Indicate in UI when no selectors are found."
+
 	cl := receiver class.
 	methods := selectors collect: [ :selector | MethodReference class: cl selector: selector ].
-
+	
 	"SearchBrowser does not provide a setter method for messageList."
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
