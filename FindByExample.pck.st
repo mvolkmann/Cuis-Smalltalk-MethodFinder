@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:28:39 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:36:01 am'!
 'Description '!
-!provides: 'FindByExample' 1 89!
+!provides: 'FindByExample' 1 90!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -244,21 +244,23 @@ buildMorphicWindow
 		
 	model changed: #editSelection.! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 09:36:11'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 10:35:10'!
 findMethods
 
-	| arguments cl expected methods receiver selectors |
+	| arguments cl compiledMethod expected methods receiver selectors |
 		
 	receiver := Compiler evaluate: receiverInput text.
 	arguments := Compiler evaluate: '{', argumentsInput text, '}'.
 	expected := Compiler evaluate: expectedInput text.
 	
-	"TODO: Get the exact classes that implement each selector instead of assuming they are all in the receiver class."
 	selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
 	"TODO: Indicate in UI when no selectors are found."
 
 	cl := receiver class.
-	methods := selectors collect: [ :selector | MethodReference class: cl selector: selector ].
+	methods := selectors collect: [ :selector |
+		compiledMethod := receiver class lookupSelector: selector.
+		MethodReference class: compiledMethod methodClass selector: selector.
+	].
 	
 	"SearchBrowser does not provide a setter method for messageList."
 	model instVarNamed: #messageList put: methods sort.
