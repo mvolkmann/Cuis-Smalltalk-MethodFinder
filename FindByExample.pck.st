@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 9:58:09 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 10:16:01 am'!
 'Description '!
-!provides: 'FindByExample' 1 86!
+!provides: 'FindByExample' 1 87!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -178,7 +178,7 @@ label: aString
 
 	label := aString! !
 
-!LabelledInput methodsFor: 'initialization' stamp: 'RMV 1/12/2025 07:53:01'!
+!LabelledInput methodsFor: 'initialization' stamp: 'RMV 1/12/2025 10:14:26'!
 buildMorph: labelString
 	
 	label := LabelMorph contents: labelString.
@@ -191,7 +191,7 @@ buildMorph: labelString
 	self separation: 10.
 	self padding: 0. "must set AFTER separation"
 	self addMorph: label.
-	self addMorph: textModelMorph.! !
+	self addMorph: textModelMorph proportionalWidth: 1.! !
 
 !LabelledInput methodsFor: 'as yet unclassified' stamp: 'RMV 1/10/2025 18:53:44'!
 focus
@@ -207,18 +207,19 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 09:57:47'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 10:15:20'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
-	| findButton searchBar listPane |
+	| findButton row searchBar listPane |
 	
 	searchBar := LayoutMorph newColumn.
 	searchBar separation: 5.
 	
 	receiverInput := LabelledInput label: 'Receiver:'.
-	argumentsInput := LabelledInput label: 'Arguments'.
+	argumentsInput := LabelledInput label: 'Arguments:'.
 	expectedInput := LabelledInput label: 'Expected:'.
+	
 	"TODO: Disable findButton if receiverInput or expectedInput are empty."
 	findButton := PluggableButtonMorph
 		model: self
@@ -228,7 +229,10 @@ buildMorphicWindow
 	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
 	
 	searchBar addMorph: receiverInput.
-	searchBar addMorph: argumentsInput.
+	row := LayoutMorph newRow.
+	row addMorph: argumentsInput; addMorph: (LabelMorph contents: '(dot-separated)').
+	row axisEdgeWeight: 0.
+	searchBar addMorph: row.
 	searchBar addMorph: expectedInput.
 	searchBar addMorph: findButton.
 
