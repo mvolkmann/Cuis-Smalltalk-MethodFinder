@@ -12,19 +12,19 @@ It finds all matching method selectors and prints them in the Transcript.
 
 The following examples find instance methods:
 
-- `Finder methodsByExample: #('foo' 'FOO')` prints `asUppercase` and `translateToUppercase`.
-- `Finder methodsByExample: #('foo', 'Foo')` prints `capitalized`.
-- `Finder methodsByExample: #('foo' 'bar' 'foobar')` prints `,` and `append`.
-- `Finder methodsByExample: #('foo bar' #('foo' 'bar'))` prints `substrings`.
-- `Finder methodsByExample: #('foobar' 'foo' true)` prints `beginsWith:` and more.
-- `Finder methodsByExample: #('foobar' 'bar' true)` prints `endsWith:` and more.
-- `Finder methodsByExample: #('foobar' 'ob' true)` prints `includesString` and more.
-- `Finder methodsByExample: #(1 2 3)` prints ``.
-- `Finder methodsByExample: #(#(1 2 3 4) 2.5)` prints `+` and more.
-- `Finder methodsByExample: #(#(1 2 3 4) 2.5)` prints `average` and `mean`.
-- `Finder methodsByExample: #(#('banana' 'cherry' 'apple') #('apple' 'banana' 'cherry'))` prints `shuffled`, `sort`, and `sorted`.
-- `double := [:x | x * 2]. Finder methodsByExample: { #(1 2 3). double. #(2 4 6) }.` prints `collect:` and 4 more surprising results
+- `MethodFinder methodsByExample: #('foo' 'FOO')` prints `asUppercase` and `translateToUppercase`.
+- `MethodFinder methodsByExample: #('foo', 'Foo')` prints `capitalized`.
+- `MethodFinder methodsByExample: #('foo' 'bar' 'foobar')` prints `,` and `append`.
+- `MethodFinder methodsByExample: #('foo bar' #('foo' 'bar'))` prints `substrings`.
+- `MethodFinder methodsByExample: #('foobar' 'foo' true)` prints `beginsWith:` and more.
+- `MethodFinder methodsByExample: #('foobar' 'bar' true)` prints `endsWith:` and more.
+- `MethodFinder methodsByExample: #('foobar' 'ob' true)` prints `includesString` and more.
+- `MethodFinder methodsByExample: #(1 2 3)` prints ``.
+- `MethodFinder methodsByExample: #(#(1 2 3 4) 2.5)` prints `+` and more.
+- `MethodFinder methodsByExample: #(#(1 2 3 4) 2.5)` prints `average` and `mean`.
+- `MethodFinder methodsByExample: #(#('banana' 'cherry' 'apple') #('apple' 'banana' 'cherry'))` prints `shuffled`, `sort`, and `sorted`.
+- `double := [:x | x * 2]. MethodFinder methodsByExample: { #(1 2 3). double. #(2 4 6) }.` prints `collect:` and 4 more surprising results
 
 The following example finds a class method:
 
-- `Finder methodsByExample: { Fraction. 2. 314 }` prints `piDigitsAsInteger:`
+- `MethodFinder methodsByExample: { Fraction. 2. 314 }` prints `piDigitsAsInteger:`
