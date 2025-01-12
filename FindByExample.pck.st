@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 8:31:42 am'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 9:36:39 am'!
 'Description '!
-!provides: 'FindByExample' 1 81!
+!provides: 'FindByExample' 1 83!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -26,7 +26,7 @@ LabelledInput class
 
 !classDefinition: #MethodFinderWindow category: #FindByExample!
 SearchBrowserWindow subclass: #MethodFinderWindow
-	instanceVariableNames: 'expectedModel receiverModel receiverInput expectedInput findButton'
+	instanceVariableNames: 'argumentsInput expectedInput receiverInput'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'FindByExample'!
@@ -207,17 +207,17 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 08:31:23'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 09:33:30'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
-	| searchBar listPane |
+	| findButton searchBar listPane |
 	
 	searchBar := LayoutMorph newColumn.
 	searchBar separation: 5.
 	
 	receiverInput := LabelledInput label: 'Receiver:'.
-	"TODO: Add input for arguments."
+	argumentsInput := LabelledInput label: 'Arguments'.
 	expectedInput := LabelledInput label: 'Expected:'.
 	findButton := PluggableButtonMorph
 		model: self
@@ -226,6 +226,7 @@ buildMorphicWindow
 	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
 	
 	searchBar addMorph: receiverInput.
+	searchBar addMorph: argumentsInput.
 	searchBar addMorph: expectedInput.
 	searchBar addMorph: findButton.
 
@@ -238,16 +239,17 @@ buildMorphicWindow
 		
 	model changed: #editSelection.! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 08:30:00'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 09:36:11'!
 findMethods
 
-	| cl expected methods receiver selectors |
+	| arguments cl expected methods receiver selectors |
 		
 	receiver := Compiler evaluate: receiverInput text.
+	arguments := Compiler evaluate: '{', argumentsInput text, '}'.
 	expected := Compiler evaluate: expectedInput text.
 	
 	"TODO: Get the exact classes that implement each selector instead of assuming they are all in the receiver class."
-	selectors := MethodFinder methodsOn: receiver arguments: #() expected: expected.
+	selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
 	"TODO: Indicate in UI when no selectors are found."
 
 	cl := receiver class.
@@ -257,11 +259,10 @@ findMethods
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
 
-!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 08:13:31'!
+!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 09:32:11'!
 initialize
 	
 	super initialize.
-	messageList := Array new.
 	receiverModel := TextModel withText: ''.
 	expectedModel := TextModel withText: ''.
 	! !
