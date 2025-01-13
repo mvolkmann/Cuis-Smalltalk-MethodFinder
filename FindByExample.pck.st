@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 2:03:10 pm'!
+'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 7:53:46 pm'!
 'Description '!
-!provides: 'FindByExample' 1 93!
+!provides: 'FindByExample' 1 94!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -206,18 +206,14 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 13:57:38'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 19:52:46'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
-	| argumentsRow findButton findButtonRow searchBar listPane |
+	| findButton findButtonRow searchBar listPane |
 	
 	searchBar := LayoutMorph newColumn.
 	searchBar separation: 5.
-		
-	argumentsRow := LayoutMorph newRow.
-	argumentsRow addMorph: argumentsInput; addMorph: (LabelMorph contents: '(dot-separated)').
-	argumentsRow axisEdgeWeight: 0.
 	
 	"TODO: Disable findButton if receiverInput or expectedInput are empty."
 	findButton := PluggableButtonMorph
@@ -231,7 +227,7 @@ buildMorphicWindow
 	findButtonRow addMorph: statusLabel.
 	
 	searchBar addMorph: receiverInput.
-	searchBar addMorph: argumentsRow.
+	searchBar addMorph: argumentsInput.
 	searchBar addMorph: expectedInput.
 	searchBar addMorph: findButtonRow.
 
@@ -249,7 +245,7 @@ windowColor
 
 	^ Color yellow twiceDarker! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 14:02:07'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 19:50:44'!
 findMethods
 
 	| arguments cl compiledMethod expected message methods receiver selectors |
@@ -268,21 +264,22 @@ findMethods
 		MethodReference class: compiledMethod methodClass selector: selector.
 	].
 
-	message := methods isEmpty
-		ifTrue: [ 'no matching methods found' ]
-		ifFalse: [ '{1} methods found' format: { methods size } ].
+	message := methods size caseOf: {
+		[0] -> [ 'no matching methods found' ].
+		[1] -> [ '1 method found' ]
+	} otherwise: [ '{1} methods found' format: { methods size } ].
 	statusLabel contents: message.
 	
 	"SearchBrowser does not provide a setter method for messageList."
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
 
-!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 13:57:22'!
+!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 19:53:31'!
 initialize
 
 	super initialize.
 	
-	argumentsInput := LabelledInput label: 'Arguments:'.
+	argumentsInput := LabelledInput label: 'Arguments (dot-separated):'.
 	expectedInput := LabelledInput label: 'Expected:'.
 	receiverInput := LabelledInput label: 'Receiver:'.
 	statusLabel := LabelMorph contents: ''.! !
