@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 12 January 2025 at 7:53:46 pm'!
+'From Cuis7.3 [latest update: #6962] on 14 January 2025 at 7:45:23 pm'!
 'Description '!
-!provides: 'FindByExample' 1 94!
+!provides: 'FindByExample' 1 97!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -26,7 +26,7 @@ LabelledInput class
 
 !classDefinition: #MethodFinderWindow category: #FindByExample!
 SearchBrowserWindow subclass: #MethodFinderWindow
-	instanceVariableNames: 'argumentsInput expectedInput receiverInput statusLabel'
+	instanceVariableNames: 'argumentsInput expectedInput findButton receiverInput statusLabel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'FindByExample'!
@@ -163,6 +163,16 @@ methodsOn: receiverObject arguments: argumentArray expected: expectedObject
 	^ matches asSortedCollection.
 ! !
 
+!LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
+input
+
+	^ textModelMorph! !
+
+!LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:28:26'!
+keystrokeAction: aBlock
+
+	^ textModelMorph keystrokeAction: aBlock! !
+
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/10/2025 18:40:24'!
 text
 
@@ -197,6 +207,11 @@ focus
 
 	textModelMorph focusText! !
 
+!LabelledInput methodsFor: 'as yet unclassified' stamp: 'RMV 1/13/2025 08:39:07'!
+model
+
+	^ textModelMorph model! !
+
 !LabelledInput class methodsFor: 'instance creation' stamp: 'RMV 1/10/2025 18:41:00'!
 label: aString
 
@@ -206,21 +221,20 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 19:52:46'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/14/2025 19:45:20'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
-	| findButton findButtonRow searchBar listPane |
+	| findButtonRow searchBar listPane |
 	
 	searchBar := LayoutMorph newColumn.
 	searchBar separation: 5.
 	
-	"TODO: Disable findButton if receiverInput or expectedInput are empty."
 	findButton := PluggableButtonMorph
 		model: self
 		action: #findMethods
 		label: 'Find Methods'.
-	"findButton disable."
+	findButton disable.
 	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
 	findButtonRow := LayoutMorph newRow.
 	findButtonRow addMorph: findButton.
@@ -236,9 +250,7 @@ buildMorphicWindow
 	self layoutMorph
 		addMorph: searchBar fixedHeight: 0; "using minimum height that contains children"
 		addAdjusterAndMorph: listPane proportionalHeight: 0.40;
-		addAdjusterAndMorph: self buildLowerPanes layoutSpec: LayoutSpec useAll	.
-		
-	model changed: #editSelection.! !
+		addAdjusterAndMorph: self buildLowerPanes layoutSpec: LayoutSpec useAll.! !
 
 !MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 10:27:53'!
 windowColor
@@ -274,15 +286,39 @@ findMethods
 	model instVarNamed: #messageList put: methods sort.
 	model changed: #messageList.! !
 
-!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/12/2025 19:53:31'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/14/2025 19:42:50'!
+handleKeyboardEvent: anEvent
+	
+	self updateFindButton.
+	
+	"Clear the status label if it isn't already empty."
+	statusLabel contents isEmpty ifFalse: [ statusLabel contents: '' ]! !
+
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/14/2025 19:42:21'!
+updateFindButton
+	| haveExpected haveReceiver |
+	
+	haveReceiver := receiverInput text isEmpty not.
+	haveExpected := expectedInput text isEmpty not.
+	haveReceiver and: [haveExpected] ::
+		ifTrue: [ findButton enable ]
+		ifFalse: [findButton disable ].! !
+
+!MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/14/2025 19:43:37'!
 initialize
 
 	super initialize.
 	
+	receiverInput := LabelledInput label: 'Receiver:'.
 	argumentsInput := LabelledInput label: 'Arguments (dot-separated):'.
 	expectedInput := LabelledInput label: 'Expected:'.
-	receiverInput := LabelledInput label: 'Receiver:'.
-	statusLabel := LabelMorph contents: ''.! !
+	statusLabel := LabelMorph contents: ''.
+	
+	receiverInput keystrokeAction: [ :evt | self handleKeyboardEvent: evt ].
+	argumentsInput keystrokeAction: [ :evt | self handleKeyboardEvent: evt ].
+	expectedInput keystrokeAction: [ :evt | self handleKeyboardEvent: evt ].
+
+! !
 
 !MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 06:46:34'!
 open
