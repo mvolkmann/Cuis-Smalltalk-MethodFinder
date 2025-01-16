@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 14 January 2025 at 7:45:23 pm'!
+'From Cuis7.3 [latest update: #6962] on 16 January 2025 at 7:59:13 am'!
 'Description '!
-!provides: 'FindByExample' 1 97!
+!provides: 'FindByExample' 1 99!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -252,9 +252,13 @@ buildMorphicWindow
 		addAdjusterAndMorph: listPane proportionalHeight: 0.40;
 		addAdjusterAndMorph: self buildLowerPanes layoutSpec: LayoutSpec useAll.! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/12/2025 10:27:53'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/16/2025 07:11:35'!
 windowColor
 
+	"SearchBrowserWindow is a subclass of MethodSetWindow
+	which defines the isntance method windowColor.
+	That reutrns Theme current messageSet.
+	A different color is used here."
 	^ Color yellow twiceDarker! !
 
 !MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 19:50:44'!
@@ -294,15 +298,13 @@ handleKeyboardEvent: anEvent
 	"Clear the status label if it isn't already empty."
 	statusLabel contents isEmpty ifFalse: [ statusLabel contents: '' ]! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/14/2025 19:42:21'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/16/2025 07:59:03'!
 updateFindButton
 	| haveExpected haveReceiver |
 	
 	haveReceiver := receiverInput text isEmpty not.
 	haveExpected := expectedInput text isEmpty not.
-	haveReceiver and: [haveExpected] ::
-		ifTrue: [ findButton enable ]
-		ifFalse: [findButton disable ].! !
+	findButton enable: (haveReceiver and: [haveExpected]).! !
 
 !MethodFinderWindow methodsFor: 'initialization' stamp: 'RMV 1/14/2025 19:43:37'!
 initialize
@@ -345,4 +347,9 @@ worldMenuOptions
 			#icon -> #inspectIcon.
 			#balloonText -> 'A tool for finding methods that return a given answer.'.
 		} asDictionary}`! !
+
+!PluggableButtonMorph methodsFor: '*FindByExample' stamp: 'RMV 1/16/2025 07:57:30'!
+enable: aBoolean
+
+	aBoolean ifTrue: [ self enable ] ifFalse: [ self disable ]! !
 MethodFinder initialize!
