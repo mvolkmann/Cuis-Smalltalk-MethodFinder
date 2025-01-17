@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 17 January 2025 at 4:35:53 pm'!
+'From Cuis7.3 [latest update: #6962] on 17 January 2025 at 5:06:09 pm'!
 'Description '!
-!provides: 'FindByExample' 1 115!
+!provides: 'FindByExample' 1 117!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -222,19 +222,24 @@ windowColor
 	A different color is used here."
 	^ Color yellow twiceDarker! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/16/2025 18:46:24'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 17:06:08'!
 evaluate: aString
+	
+	^ [ Compiler evaluate: aString ]
+		"The expression `ex resume: false` prevents the
+		Notification from being written to the Transcript."
+		on: Notification do: [ :ex | ex resume: false. nil ]
+		on: Error do: [ nil ]
 
-	^ [ Compiler evaluate: aString ] on: Error do: [ nil ]! !
+! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 16:35:50'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 17:05:16'!
 findMethods
 	| arguments compiledMethod expected message methods receiver selectors |
 	
 	statusLabel contents:​ 'searching for methods'.
 
-	"TODO: How can you prevent `Compiler evaluate:` from writing error messages to Transcript?"
-	receiver := [ Compiler evaluate: receiverInput text ] on: Error do: [ nil ].
+	receiver := self evaluate: receiverInput text.
 	receiver ifNil: [
 		statusLabel contents: 'Receiver expression is invalid.'.
 		^ nil.
@@ -242,17 +247,14 @@ findMethods
 
 	arguments := argumentsInput text isEmpty
 		ifTrue: [ #() ]
-		ifFalse: [
-			| expression |
-			expression := '#(', argumentsInput text, ')'.
-			[ Compiler evaluate: expression ] on: Error do: [ nil ]
-		].
+		ifFalse: [ self evaluate: '#(', argumentsInput text, ')' ].
+	arguments logAs: 'arguments'.
 	arguments ifNil: [
 		statusLabel contents: 'Arguments expression is invalid.'.
 		^ nil.
 	].
 	
-	expected := [ Compiler evaluate: expectedInput text ] on: Error do: [ nil ].
+	expected := self evaluate: expectedInput text.
 	expected ifNil: [
 		statusLabel contents: 'Expected expression is invalid.'.
 		^ nil.
