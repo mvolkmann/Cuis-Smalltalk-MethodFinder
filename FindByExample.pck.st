@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 16 January 2025 at 7:59:13 am'!
+'From Cuis7.3 [latest update: #6962] on 17 January 2025 at 6:27:43 am'!
 'Description '!
-!provides: 'FindByExample' 1 99!
+!provides: 'FindByExample' 1 112!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -34,20 +34,6 @@ SearchBrowserWindow subclass: #MethodFinderWindow
 MethodFinderWindow class
 	instanceVariableNames: ''!
 
-
-!MethodFinder methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 06:39:53'!
-findMethods
-
-	| expected methods receiver |
-	
-	'in FindMethods' print.
-	
-	receiver := Compiler evaluate: receiverInput text.
-	expected := Compiler evaluate: expectedInput text.
-	
-	methods := MethodFinder methodsOn: receiver arguments: #() expected: expected.
-	methods logAs: 'methods'.
-! !
 
 !MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/7/2025 08:39:35'!
 initialize
@@ -98,36 +84,7 @@ initialize
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/10/2025 19:12:11'!
-methodsByExample: values
-	"Find all methods that return the last value when
-	the first value is the receiver and the other values are arguments."
-	| arguments expected matches receiver |
-
-	values size < 2 ifTrue: [
-		Error signal: 'requires at least two values'
-	].
-
-	receiver := values first.
-	expected := values last.
-	arguments := values allButFirst allButLast.
-
-	matches := self methodsOn: receiver arguments: arguments expected: expected.
-
-	"Write the results to the Transcript."
-	matches size = 0
-		ifTrue: [ 'no methods found' print ]
-		ifFalse: [
-			| argString template |
-			argString := arguments
-				ifEmpty: 'no arguments'
-				ifNotEmpty: [ 'arguments {1}' format: { arguments } ].
-			template := 'The following methods on {1} with {2} return {3}:'.
-			template format: { receiver printString. argString. expected printString} :: print.
-			matches asSortedCollection do: [ :match | '- ', match :: print ].
-		].! !
-
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/10/2025 19:16:04'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/16/2025 19:12:43'!
 methodsOn: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argCount argumentsCopy matches receiverCopy selectors |
@@ -147,9 +104,13 @@ methodsOn: receiverObject arguments: argumentArray expected: expectedObject
 			or: [ selector asLowercase includesSubString: 'halt' ]
 	].
 
+	'evaluating {1} selectors' format: { selectors size } :: print.
+
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
 	matches := selectors select: [ :selector |
+		selector print.
+		
 		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiverObject veryDeepCopy.
 		
@@ -261,29 +222,53 @@ windowColor
 	A different color is used here."
 	^ Color yellow twiceDarker! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/12/2025 19:50:44'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/16/2025 18:46:24'!
+evaluate: aString
+
+	^ [ Compiler evaluate: aString ] on: Error do: [ nil ]! !
+
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 06:26:54'!
 findMethods
-
-	| arguments cl compiledMethod expected message methods receiver selectors |
+	| arguments compiledMethod expected message methods receiver selectors |
 		
-	statusLabel contents:​ ''.
+	statusLabel contents:​ 'searching for methods'.
 
-	receiver := Compiler evaluate: receiverInput text.
-	arguments := Compiler evaluate: '{', argumentsInput text, '}'.
-	expected := Compiler evaluate: expectedInput text.
+	"TODO: How can you prevent `Compiler evaluate:` from writing error messages to Transcript?"
+	receiver := [ Compiler evaluate: receiverInput text ] on: Error do: [ nil ].
+	receiver ifNil: [
+		statusLabel contents: 'Receiver expression is invalid.'.
+		^ nil.
+	].
+
+	arguments := argumentsInput text isEmpty
+		ifTrue: [ #() ]
+		ifFalse: [
+			| expression |
+			expression := '#(', argumentsInput text, ')'.
+			[ Compiler evaluate: expression ] on: Error do: [ nil ]
+		].
+	arguments ifNil: [
+		statusLabel contents: 'Arguments expression is invalid.'.
+		^ nil.
+	].
 	
+	expected := [ Compiler evaluate: expectedInput text ] on: Error do: [ nil ].
+	expected ifNil: [
+		statusLabel contents: 'Expected expression is invalid.'.
+		^ nil.
+	].
+		
 	selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
 
-	cl := receiver class.
 	methods := selectors collect: [ :selector |
 		compiledMethod := receiver class lookupSelector: selector.
 		MethodReference class: compiledMethod methodClass selector: selector.
 	].
 
 	message := methods size caseOf: {
-		[0] -> [ 'no matching methods found' ].
-		[1] -> [ '1 method found' ]
-	} otherwise: [ '{1} methods found' format: { methods size } ].
+		[0] -> [ 'No matching methods were found.' ].
+		[1] -> [ '1 method was found.' ]
+	} otherwise: [ '{1} methods were found.' format: { methods size } ].
 	statusLabel contents: message.
 	
 	"SearchBrowser does not provide a setter method for messageList."
