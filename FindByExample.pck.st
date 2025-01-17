@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 17 January 2025 at 6:27:43 am'!
+'From Cuis7.3 [latest update: #6962] on 17 January 2025 at 4:35:53 pm'!
 'Description '!
-!provides: 'FindByExample' 1 112!
+!provides: 'FindByExample' 1 115!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -84,7 +84,7 @@ initialize
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/16/2025 19:12:43'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/17/2025 06:42:06'!
 methodsOn: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argCount argumentsCopy matches receiverCopy selectors |
@@ -104,12 +104,12 @@ methodsOn: receiverObject arguments: argumentArray expected: expectedObject
 			or: [ selector asLowercase includesSubString: 'halt' ]
 	].
 
-	'evaluating {1} selectors' format: { selectors size } :: print.
+	"'evaluating {1} selectors' format: { selectors size } :: print."
 
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
 	matches := selectors select: [ :selector |
-		selector print.
+		"selector print."
 		
 		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiverObject veryDeepCopy.
@@ -227,10 +227,10 @@ evaluate: aString
 
 	^ [ Compiler evaluate: aString ] on: Error do: [ nil ]! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 06:26:54'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 16:35:50'!
 findMethods
 	| arguments compiledMethod expected message methods receiver selectors |
-		
+	
 	statusLabel contents:​ 'searching for methods'.
 
 	"TODO: How can you prevent `Compiler evaluate:` from writing error messages to Transcript?"
@@ -257,23 +257,28 @@ findMethods
 		statusLabel contents: 'Expected expression is invalid.'.
 		^ nil.
 	].
+
+	"The remaining code is in a block and run in a new process by sending it `#fork`.
+	This is necessary to allow the change to statusLabel above
+	to be seen before the code in this block finishes executing."
+	[
+		selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
+
+		methods := selectors collect: [ :selector |
+			compiledMethod := receiver class lookupSelector: selector.
+			MethodReference class: compiledMethod methodClass selector: selector.
+		].
+
+		message := methods size caseOf: {
+			[0] -> [ 'No matching methods were found.' ].
+			[1] -> [ '1 method was found.' ]
+		} otherwise: [ '{1} methods were found.' format: { methods size } ].
+		statusLabel contents: message.
 		
-	selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
-
-	methods := selectors collect: [ :selector |
-		compiledMethod := receiver class lookupSelector: selector.
-		MethodReference class: compiledMethod methodClass selector: selector.
-	].
-
-	message := methods size caseOf: {
-		[0] -> [ 'No matching methods were found.' ].
-		[1] -> [ '1 method was found.' ]
-	} otherwise: [ '{1} methods were found.' format: { methods size } ].
-	statusLabel contents: message.
-	
-	"SearchBrowser does not provide a setter method for messageList."
-	model instVarNamed: #messageList put: methods sort.
-	model changed: #messageList.! !
+		"SearchBrowser does not provide a setter method for messageList."
+		model instVarNamed: #messageList put: methods sort.
+		model changed: #messageList.
+	] fork.! !
 
 !MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/14/2025 19:42:50'!
 handleKeyboardEvent: anEvent
