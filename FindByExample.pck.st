@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 18 January 2025 at 11:30:35 am'!
+'From Cuis7.3 [latest update: #6991] on 18 January 2025 at 12:46:31 pm'!
 'Description '!
-!provides: 'FindByExample' 1 125!
+!provides: 'FindByExample' 1 127!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -35,7 +35,37 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 11:29:48'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:43:03'!
+find: anArray
+
+	| arguments compiledMethod expected message receiver selectors |
+	
+	anArray isKindOf: SequenceableCollection :: ifFalse: [
+		'argument must be a kind of SequenceableCollection' print.
+		^ nil.
+	].
+	anArray size < 2 ifTrue: [
+		'must supply at least two expressions' print.
+		^ nil.
+	].
+	
+	receiver := anArray first.
+	expected := anArray last.
+	arguments := anArray allButFirst allButLast.
+	selectors := self selectorsOn: receiver arguments: arguments expected: expected.
+	
+	message := selectors size caseOf: {
+		[0] -> [ 'No matching methods were found.' ].
+		[1] -> [ '1 method was found.' ]
+	} otherwise: [ '{1} methods were found.' format: { selectors size } ].
+	message print.
+	
+	selectors do: [ :selector |
+		compiledMethod := receiver class lookupSelector: selector.
+		'- {1} {2}' format: { compiledMethod methodClass. compiledMethod selector } :: print.
+	].! !
+
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:44:49'!
 initialize
 	"Populate the SkipSet class variable."
 	
@@ -67,6 +97,7 @@ initialize
 		#errorImproperStore
 		#executeMethod:
 		#explore
+		#fileOutOn:
 		#inboundPointers
 		#inform:
 		#inspect
@@ -83,6 +114,7 @@ initialize
 		#objectForDataStream:
 		#print
 		#primitiveError:
+		#profilerFriendlyCall:
 		#removeFromSystem
 		#removeFromSystem:
 		#removeFromSystemUnlogged
@@ -98,18 +130,14 @@ initialize
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 11:29:01'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:46:20'!
 matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argumentsCopy matches receiverCopy |
 
-	"'evaluating {1} selectors' format: { selectors size } :: print."
-
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
-	matches := selectors select: [ :selector |
-		"selector print."
-		
+	matches := selectors select: [ :selector |		
 		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiverObject veryDeepCopy.
 		
@@ -133,19 +161,6 @@ matchesIn: selectors receiver: receiverObject arguments: argumentArray expected:
 	^ matches asSortedCollection.
 ! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 10:28:24'!
-methodsOn: receiverObject arguments: argumentArray expected: expectedObject
-	"Answer all selectors on the receiver object that take the arguments and return expected object.
-	This combines the use of two other class methods in this class."
-	| selectors |
-
-	selectors := self selectorsFor: receiverObject arguments: argumentArray size.
-	^ self
-		matchesIn: selectors
-		receiver: receiverObject
-		arguments: argumentArray
-		expected: expectedObject.! !
-
 !MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 08:59:13'!
 selectorsFor: receiverObject arguments: aNumber
 	"Answer all selectors on the receiver object that take a given number of arguments."
@@ -163,6 +178,19 @@ selectorsFor: receiverObject arguments: aNumber
 			or: [ SkipSet includes: selector ] ::
 			or: [ selector asLowercase includesSubString: 'halt' ]
 	].! !
+
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:24:11'!
+selectorsOn: receiverObject arguments: argumentArray expected: expectedObject
+	"Answer all selectors on the receiver object that take the arguments and return expected object.
+	This combines the use of two other class methods in this class."
+	| selectors |
+
+	selectors := self selectorsFor: receiverObject arguments: argumentArray size.
+	^ self
+		matchesIn: selectors
+		receiver: receiverObject
+		arguments: argumentArray
+		expected: expectedObject.! !
 
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
 input
