@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 17 January 2025 at 5:06:09 pm'!
+'From Cuis7.3 [latest update: #6991] on 18 January 2025 at 11:30:35 am'!
 'Description '!
-!provides: 'FindByExample' 1 117!
+!provides: 'FindByExample' 1 125!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -35,9 +35,10 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/7/2025 08:39:35'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 11:29:48'!
 initialize
-
+	"Populate the SkipSet class variable."
+	
 	"Skip these selectors because they have
 	side effects that are bad for this method."
 	SkipSet := IdentitySet newFrom: #(
@@ -47,6 +48,7 @@ initialize
 		#allMethodCategoriesIntegratedThrough:
 		#at:
 		#basicInspect
+		#benchmark
 		#browseClassHierarchy
 		#caseError
 		#changed:
@@ -57,20 +59,27 @@ initialize
 		#compileAllFrom:
 		#confirm:
 		#confirm:orCancel:
+		#copyToClipboard
 		#definesInstanceVariableNamedInHierarchy:
 		#deprecatedMethod
 		#edit
 		#editLabel:
+		#errorImproperStore
 		#executeMethod:
 		#explore
+		#inboundPointers
 		#inform:
 		#inspect
 		#inspectWithLabel:
 		#logAs:
+		#longPrintText
 		#methodDict:
 		#methodDictionary:
+		#mustBeBoolean
 		#newFrom:
+		#nextObject
   		#notify:
+		#notYetImplemented
 		#objectForDataStream:
 		#print
 		#primitiveError:
@@ -78,31 +87,21 @@ initialize
 		#removeFromSystem:
 		#removeFromSystemUnlogged
 		#setName:
+		#shouldNotHappen
+		#shouldNotImplement
+		#someObject
+		#subclassResponsibility
 		#standardMethodHeaderFor:
+		#tinyBenchmarks
 		#whichSelectorsReferTo:
 		#yourself
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/17/2025 06:42:06'!
-methodsOn: receiverObject arguments: argumentArray expected: expectedObject
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 11:29:01'!
+matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
-	| actualObject argCount argumentsCopy matches receiverCopy selectors |
-
-	argCount := argumentArray size.
-
-	"Find all the selectors in the receiver class and its subclasses."	
-	selectors := receiverObject class allSelectors.
-
-	"Remove the selectors that do not take the number of arguments provided,
-	are ones we want to skip (due to side effects), or are related to halting."
-	selectors := selectors reject: [ :selector |
-		| thisArgCount |
-		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
-		thisArgCount ~= argCount ::
-			or: [ SkipSet includes: selector ] ::
-			or: [ selector asLowercase includesSubString: 'halt' ]
-	].
+	| actualObject argumentsCopy matches receiverCopy |
 
 	"'evaluating {1} selectors' format: { selectors size } :: print."
 
@@ -116,13 +115,54 @@ methodsOn: receiverObject arguments: argumentArray expected: expectedObject
 		
 		"Some methods modify arguments, so we operate on a copy."
 		argumentsCopy := argumentArray veryDeepCopy.
-
+		
+		"See comment below.
+		startTime := Time now."
+		
 		actualObject := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
+		
+		"Use this code to find methods that take too long to run.
+		durationNanos := (Time now - startTime) totalNanoSeconds.
+		durationNanos > 70000 ifTrue: [
+			'{1} ran for {2}' format: { selector. durationNanos } :: print.
+		]."
+		
 		actualObject = expectedObject.
 	].
 
 	^ matches asSortedCollection.
 ! !
+
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 10:28:24'!
+methodsOn: receiverObject arguments: argumentArray expected: expectedObject
+	"Answer all selectors on the receiver object that take the arguments and return expected object.
+	This combines the use of two other class methods in this class."
+	| selectors |
+
+	selectors := self selectorsFor: receiverObject arguments: argumentArray size.
+	^ self
+		matchesIn: selectors
+		receiver: receiverObject
+		arguments: argumentArray
+		expected: expectedObject.! !
+
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 08:59:13'!
+selectorsFor: receiverObject arguments: aNumber
+	"Answer all selectors on the receiver object that take a given number of arguments."
+	| selectors |
+
+	"Find all the selectors in the receiver class and its subclasses."	
+	selectors := receiverObject class allSelectors.
+
+	"Return only the selectors take the number of arguments provided,
+	and skip those that have bad side effects."
+	^​ selectors reject: [ :selector |
+		| thisArgCount |
+		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
+		thisArgCount ~= aNumber ::
+			or: [ SkipSet includes: selector ] ::
+			or: [ selector asLowercase includesSubString: 'halt' ]
+	].! !
 
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
 input
@@ -182,7 +222,7 @@ label: aString
 	^ instance.
 ! !
 
-!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/14/2025 19:45:20'!
+!MethodFinderWindow methodsFor: 'GUI building' stamp: 'RMV 1/18/2025 10:06:37'!
 buildMorphicWindow
 	"This was copied from the SearchBrowserWindow class
 	and searchBar was modified."
@@ -196,7 +236,6 @@ buildMorphicWindow
 		action: #findMethods
 		label: 'Find Methods'.
 	findButton disable.
-	findButton layoutSpec offAxisEdgeWeight: #leftOrTop.
 	findButtonRow := LayoutMorph newRow.
 	findButtonRow addMorph: findButton.
 	findButtonRow addMorph: statusLabel.
@@ -233,12 +272,10 @@ evaluate: aString
 
 ! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 17:05:16'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/18/2025 11:30:30'!
 findMethods
 	| arguments compiledMethod expected message methods receiver selectors |
 	
-	statusLabel contents:​ 'searching for methods'.
-
 	receiver := self evaluate: receiverInput text.
 	receiver ifNil: [
 		statusLabel contents: 'Receiver expression is invalid.'.
@@ -248,7 +285,6 @@ findMethods
 	arguments := argumentsInput text isEmpty
 		ifTrue: [ #() ]
 		ifFalse: [ self evaluate: '#(', argumentsInput text, ')' ].
-	arguments logAs: 'arguments'.
 	arguments ifNil: [
 		statusLabel contents: 'Arguments expression is invalid.'.
 		^ nil.
@@ -260,11 +296,15 @@ findMethods
 		^ nil.
 	].
 
+	selectors := MethodFinder selectorsFor: receiver arguments: arguments size.
+	"selectors size logAs: 'selectors size'."
+	statusLabel contents: ('evaluating {1} selectors' format: { selectors size }).
+
 	"The remaining code is in a block and run in a new process by sending it `#fork`.
 	This is necessary to allow the change to statusLabel above
 	to be seen before the code in this block finishes executing."
 	[
-		selectors := MethodFinder methodsOn: receiver arguments: arguments expected: expected.
+		selectors := MethodFinder matchesIn: selectors receiver: receiver arguments: arguments expected: expected.
 
 		methods := selectors collect: [ :selector |
 			compiledMethod := receiver class lookupSelector: selector.
