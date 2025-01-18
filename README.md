@@ -12,6 +12,10 @@ Selecting one displays the corresponding method implementation in the bottom pan
 
 <img alt="Method Finder screenshot" src="./cuis-method-finder.png">
 
+The GUI class `MethodFinderWindow` is a subclass of `SearchBrowserWindow`,
+created by Mariano Montone. This is ideal because
+it enables easliy implementing a nearly identical UI.
+
 This package also defines the class `MethodFinder`
 that has the class method `find:`.
 That method must be passed an array where:
