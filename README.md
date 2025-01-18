@@ -6,20 +6,21 @@ It adds the menu item "Method Finder" to the Open submenu of the World Menu.
 This opens a window where Smalltalk expressions can be entered,
 one for the receiver object, one for an optional array of arguments,
 and one for the expected object.
-After entering these, click the "Find" button.
-Matching selectors are displayed in the middle pane.
+After entering these, click the "Find Methods" button.
+Matching methods are displayed in the middle pane.
 Selecting one displays the corresponding method implementation in the bottom pane.
 
 <img alt="Method Finder screenshot" src="./cuis-method-finder.png">
 
-It defines the class `MethodFinder` that has the class method `find:`.
+This package also defines the class `MethodFinder`
+that has the class method `find:`.
 That method must be passed an array where:
 
 - the first element is a receiver object
 - the last element is the expected result
 - other objects, if any, are method arguments
 
-It finds all matching method selectors and prints them in the Transcript.
+It finds all matching methods and prints them in the Transcript.
 
 The following examples find instance methods:
 
