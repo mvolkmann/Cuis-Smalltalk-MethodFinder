@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 18 January 2025 at 12:46:31 pm'!
+'From Cuis7.3 [latest update: #6991] on 18 January 2025 at 1:53:38 pm'!
 'Description '!
-!provides: 'FindByExample' 1 127!
+!provides: 'FindByExample' 1 128!
 SystemOrganization addCategory: #FindByExample!
 
 
@@ -289,22 +289,26 @@ windowColor
 	A different color is used here."
 	^ Color yellow twiceDarker! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/17/2025 17:06:08'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/18/2025 13:53:20'!
 evaluate: aString
-	
+		
 	^ [ Compiler evaluate: aString ]
-		"The expression `ex resume: false` prevents the
-		Notification from being written to the Transcript."
-		on: Notification do: [ :ex | ex resume: false. nil ]
-		on: Error do: [ nil ]
-
+		on: Notification do: [ :ex |
+			"Prevent Notification from being written to Transcript."
+			ex resume: false.
+			nil.
+		]
+		on: Error do: [ :ex | nil ].
 ! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/18/2025 11:30:30'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/18/2025 13:44:01'!
 findMethods
 	| arguments compiledMethod expected message methods receiver selectors |
 	
-	receiver := self evaluate: receiverInput text.
+	[ receiver := self evaluate: receiverInput text ] on: Error do: [ :ex |
+		statusLabel contents: ex messageText.
+		^ nil.
+	].
 	receiver ifNil: [
 		statusLabel contents: 'Receiver expression is invalid.'.
 		^ nil.
