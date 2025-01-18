@@ -10,7 +10,7 @@ After entering these, click the "Find" button.
 Matching selectors are displayed in the middle pane.
 Selecting one displays the corresponding method implementation in the bottom pane.
 
-TODO: Add a screenshot.
+<img alt="Method Finder screenshot" src="./cuis-method-finder.png">
 
 It defines the class `MethodFinder` that has the class method `find:`.
 That method must be passed an array where:
