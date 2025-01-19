@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 7:58:50 am'!
+'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 8:04:32 am'!
 'Description '!
-!provides: 'FindByExample' 1 130!
+!provides: 'FindByExample' 1 131!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -36,7 +36,7 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 07:56:54'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 08:03:53'!
 find: anArray
 
 	| arguments compiledMethod expected message receiver selectors |
@@ -53,7 +53,7 @@ find: anArray
 	receiver := anArray first.
 	expected := anArray last.
 	arguments := anArray allButFirst allButLast.
-	selectors := self selectorsOn: receiver arguments: arguments expected: expected.
+	selectors := self selectorsFor: receiver arguments: arguments expected: expected.
 		
 	message := selectors size caseOf: {
 		[0] -> [ 'No matching methods were found.' ].
@@ -179,8 +179,8 @@ selectorsFor: receiverObject arguments: aNumber
 			or: [ selector asLowercase includesSubString: 'halt' ]
 	].! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:24:11'!
-selectorsOn: receiverObject arguments: argumentArray expected: expectedObject
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 08:03:53'!
+selectorsFor: receiverObject arguments: argumentArray expected: expectedObject
 	"Answer all selectors on the receiver object that take the arguments and return expected object.
 	This combines the use of two other class methods in this class."
 	| selectors |
