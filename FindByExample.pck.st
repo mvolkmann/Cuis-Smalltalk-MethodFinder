@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 7:36:36 am'!
+'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 7:58:50 am'!
 'Description '!
-!provides: 'FindByExample' 1 129!
+!provides: 'FindByExample' 1 130!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -36,7 +36,7 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:43:03'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 07:56:54'!
 find: anArray
 
 	| arguments compiledMethod expected message receiver selectors |
@@ -54,12 +54,11 @@ find: anArray
 	expected := anArray last.
 	arguments := anArray allButFirst allButLast.
 	selectors := self selectorsOn: receiver arguments: arguments expected: expected.
-	
+		
 	message := selectors size caseOf: {
 		[0] -> [ 'No matching methods were found.' ].
 		[1] -> [ '1 method was found.' ]
 	} otherwise: [ '{1} methods were found.' format: { selectors size } ].
-	message print.
 	
 	selectors do: [ :selector |
 		compiledMethod := receiver class lookupSelector: selector.
@@ -302,7 +301,7 @@ evaluate: aString
 		on: Error do: [ :ex | nil ].
 ! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/18/2025 13:44:01'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/19/2025 07:56:26'!
 findMethods
 	| arguments compiledMethod expected message methods receiver selectors |
 	
@@ -349,10 +348,14 @@ findMethods
 			[1] -> [ '1 method was found.' ]
 		} otherwise: [ '{1} methods were found.' format: { methods size } ].
 		statusLabel contents: message.
-		
+				
 		"SearchBrowser does not provide a setter method for messageList."
 		model instVarNamed: #messageList put: methods sort.
 		model changed: #messageList.
+		
+		self model messageListIndex: 0. "clears code pane"
+		
+		self redrawNeeded. "TODO: Why is this sometimes, but not always, needed?"
 	] fork.! !
 
 !MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/14/2025 19:42:50'!
@@ -387,10 +390,10 @@ initialize
 
 ! !
 
-!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 06:46:34'!
+!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 07:58:47'!
 open
 
-	^ self open: SearchBrowser new label: 'Method Finder'.! !
+	^ self open: SearchBrowser new label: 'Method Finder'! !
 
 !MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 09:51:10'!
 worldMenuOptions
