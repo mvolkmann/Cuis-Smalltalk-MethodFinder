@@ -1,6 +1,7 @@
-'From Cuis7.3 [latest update: #6991] on 18 January 2025 at 1:53:38 pm'!
+'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 7:36:36 am'!
 'Description '!
-!provides: 'FindByExample' 1 128!
+!provides: 'FindByExample' 1 129!
+!requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
 
