@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 9:21:57 am'!
+'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 10:58:03 am'!
 'Description '!
-!provides: 'FindByExample' 1 132!
+!provides: 'FindByExample' 1 165!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -65,7 +65,7 @@ find: anArray
 		'- {1} {2}' format: { compiledMethod methodClass. compiledMethod selector } :: print.
 	].! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:44:49'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 10:53:44'!
 initialize
 	"Populate the SkipSet class variable."
 	
@@ -75,69 +75,128 @@ initialize
 		#addSharedPool:
 		#allBroadAccessesTo:
 		#allBroadcastAccessesTo:
+		#allInstances
 		#allMethodCategoriesIntegratedThrough:
+		#allSelectors
+		#allUnreferencedInstanceVariables
 		#at:
 		#basicInspect
 		#benchmark
 		#browseClassHierarchy
+		#browseClassVarRefs
+		#canZapMethodDictionary
 		#caseError
 		#changed:
+		#chooseAlignment
+		#chooseClassVarName
+		#chooseColor
+		#chooseDefiningInstanceVariableAlphabeticallyWith:thenDo:
+		#chooseDefiningInstanceVariableAlphabeticallyWith:thenDo: ifNone:
+		#chooseInstanceVariable
 		#chooseInstVarAlphabeticallyThenDo:
 		#chooseInstVarThenDo:
+		#chooseRecentClipping
+		#classReorganized
+		#classReorganized:
 		#commentStamp:
 		#compile:
 		#compileAllFrom:
 		#confirm:
 		#confirm:orCancel:
 		#copyToClipboard
+		#crossReference
 		#definesInstanceVariableNamedInHierarchy:
+		#definition
 		#deprecatedMethod
 		#edit
 		#editLabel:
 		#errorImproperStore
 		#executeMethod:
 		#explore
-		#fileOutOn:
+		#flushCache
 		#inboundPointers
 		#inform:
 		#inspect
+		#inspectAllInstances
+		#inspectSubInstances
 		#inspectWithLabel:
 		#logAs:
+		#longPrintString
 		#longPrintText
 		#methodDict:
 		#methodDictionary:
+		#mourn
 		#mustBeBoolean
 		#newFrom:
 		#nextObject
+		#noteReorganizeClass:
   		#notify:
 		#notYetImplemented
 		#objectForDataStream:
+		#obsolete
+		#organization
+		#outboundPointers
+		#pin
 		#print
 		#primitiveError:
 		#profilerFriendlyCall:
+		#recoverFromMDFault
+		#recoverFromMDFaultWithTrace
+		#recreateObsoleteSubclassesCollection
+		#reformatAll
+		#reformatMethodAt:
+		#releaseClassCachedState
+		#releaseClassState
 		#removeFromSystem
 		#removeFromSystem:
 		#removeFromSystemUnlogged
+		#removeUninstantiatedSubclassesSilently
+		#removeUnmodifiedCategories
+		#removeUnmodifiedClasses
+		#removeUnmodifiedMethods
+		#removeUnmodifiedMethods:
+		#removeUnreferencedKeys
+		#removeUnusedTempRange:with:
+		#removeUnusedTempsOf:
+		#removeUnusedTempsRanges:
+		#removeUpToDate
+		#reorganize
 		#setName:
+		#shouldFileOutPool:
+		#shouldFileOutPools
 		#shouldNotHappen
 		#shouldNotImplement
+		#shutdown
 		#someObject
 		#subclassResponsibility
 		#standardMethodHeaderFor:
+		#startUp
 		#tinyBenchmarks
+		#unload
+		#unpin
 		#whichSelectorsReferTo:
+		#withCaption:chooseFrom:
 		#yourself
+		#zapAllChangeSets
+		#zapAllMethods
+		#zapOrganization
+		#zapSourcePointer
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 09:21:52'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 10:57:59'!
 matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argumentsCopy matches receiverCopy |
+	
+	"count := 0."
 
 	"Find all the selectors that return the expected value
 	when sent to the receiver with the provided arguments."
-	matches := selectors select: [ :selector |		
+	matches := selectors select: [ :selector |
+		"count := count + 1.
+		'{1}: {2}' format: { count. selector } :: print."
+			
 		"Some methods modified the receiver, so we operate on a copy."
 		receiverCopy := receiverObject veryDeepCopy.
 		
@@ -148,6 +207,7 @@ matchesIn: selectors receiver: receiverObject arguments: argumentArray expected:
 		startTime := Time now."
 		
 		actualObject := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
+		"actualObject logAs: 'actualObject'."
 		
 		"Use this code to find methods that take too long to run.
 		durationNanos := (Time now - startTime) totalNanoSeconds.
@@ -156,14 +216,14 @@ matchesIn: selectors receiver: receiverObject arguments: argumentArray expected:
 		]."
 		
 		actualObject isKindOf: Float :: and: [ expectedObject isKindOf: Float] ::
-			ifTrue: [ actualObject - expectedObject :: abs <= 0.001 ]
+			ifTrue: [ actualObject  - expectedObject :: abs <= 0.001 ]
 			ifFalse: [ actualObject = expectedObject ].
 	].
 
 	^ matches asSortedCollection.
 ! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 08:59:13'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 10:07:07'!
 selectorsFor: receiverObject arguments: aNumber
 	"Answer all selectors on the receiver object that take a given number of arguments."
 	| selectors |
@@ -178,7 +238,9 @@ selectorsFor: receiverObject arguments: aNumber
 		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
 		thisArgCount ~= aNumber ::
 			or: [ SkipSet includes: selector ] ::
-			or: [ selector asLowercase includesSubString: 'halt' ]
+			or: [ selector asLowercase includesSubString: 'halt' ] ::
+			or: [ selector beginsWith: 'fileOut' ] ::
+			or: [ selector beginsWith: 'handleFailing' ].
 	].! !
 
 !MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 08:03:53'!
