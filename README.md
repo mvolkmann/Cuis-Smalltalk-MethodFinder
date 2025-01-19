@@ -44,3 +44,10 @@ The following examples find instance methods:
 The following example finds a class method:
 
 - `MethodFinder find: { Fraction. 2. 314 }` prints `piDigitsAsInteger:`
+
+## Float Comparison
+
+When the expected value is a `Float` and a method returns a `Float`,
+it will be considered a match if the values are within 0.001 of each other.
+For example, enter `2` for Receiver and `1.414` for Expected
+will find the method `SmallInteger sqrt`.

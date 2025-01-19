@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 8:04:32 am'!
+'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 9:21:57 am'!
 'Description '!
-!provides: 'FindByExample' 1 131!
+!provides: 'FindByExample' 1 132!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -130,7 +130,7 @@ initialize
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/18/2025 12:46:20'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 09:21:52'!
 matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argumentsCopy matches receiverCopy |
@@ -155,7 +155,9 @@ matchesIn: selectors receiver: receiverObject arguments: argumentArray expected:
 			'{1} ran for {2}' format: { selector. durationNanos } :: print.
 		]."
 		
-		actualObject = expectedObject.
+		actualObject isKindOf: Float :: and: [ expectedObject isKindOf: Float] ::
+			ifTrue: [ actualObject - expectedObject :: abs <= 0.001 ]
+			ifFalse: [ actualObject = expectedObject ].
 	].
 
 	^ matches asSortedCollection.
