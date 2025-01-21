@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 19 January 2025 at 10:58:03 am'!
+'From Cuis7.3 [latest update: #6991] on 21 January 2025 at 7:17:05 am'!
 'Description '!
-!provides: 'FindByExample' 1 165!
+!provides: 'FindByExample' 1 166!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -36,6 +36,12 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:00:48'!
+class: aClass understands: selector
+
+	^ aClass canUnderstand: selector :: or: [ aClass canUnderstand: selector ]
+! !
+
 !MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 08:03:53'!
 find: anArray
 
@@ -65,92 +71,59 @@ find: anArray
 		'- {1} {2}' format: { compiledMethod methodClass. compiledMethod selector } :: print.
 	].! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 10:53:44'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:16:30'!
 initialize
 	"Populate the SkipSet class variable."
 	
 	"Skip these selectors because they have
-	side effects that are bad for this method."
+	side effects that are bad for this method.
+	In addition to these, the ? method also skips all methods
+	defined in the Behavior, ChangeSet, and ClassDescription classes."
 	SkipSet := IdentitySet newFrom: #(
 		#addSharedPool:
-		#allBroadAccessesTo:
 		#allBroadcastAccessesTo:
-		#allInstances
-		#allMethodCategoriesIntegratedThrough:
-		#allSelectors
-		#allUnreferencedInstanceVariables
 		#at:
 		#basicInspect
+		#become
 		#benchmark
 		#browseClassHierarchy
-		#browseClassVarRefs
-		#canZapMethodDictionary
 		#caseError
 		#changed:
 		#chooseAlignment
-		#chooseClassVarName
 		#chooseColor
-		#chooseDefiningInstanceVariableAlphabeticallyWith:thenDo:
-		#chooseDefiningInstanceVariableAlphabeticallyWith:thenDo: ifNone:
 		#chooseInstanceVariable
-		#chooseInstVarAlphabeticallyThenDo:
-		#chooseInstVarThenDo:
 		#chooseRecentClipping
-		#classReorganized
-		#classReorganized:
-		#commentStamp:
-		#compile:
-		#compileAllFrom:
 		#confirm:
 		#confirm:orCancel:
 		#copyToClipboard
-		#crossReference
-		#definesInstanceVariableNamedInHierarchy:
-		#definition
 		#deprecatedMethod
 		#edit
 		#editLabel:
 		#errorImproperStore
 		#executeMethod:
 		#explore
-		#flushCache
 		#inboundPointers
 		#inform:
 		#inspect
-		#inspectAllInstances
-		#inspectSubInstances
 		#inspectWithLabel:
 		#logAs:
 		#longPrintString
 		#longPrintText
-		#methodDict:
-		#methodDictionary:
 		#mourn
 		#mustBeBoolean
 		#newFrom:
+		#nextInstance
 		#nextObject
-		#noteReorganizeClass:
   		#notify:
 		#notYetImplemented
-		#objectForDataStream:
-		#obsolete
-		#organization
 		#outboundPointers
 		#pin
 		#print
 		#primitiveError:
 		#profilerFriendlyCall:
-		#recoverFromMDFault
-		#recoverFromMDFaultWithTrace
-		#recreateObsoleteSubclassesCollection
-		#reformatAll
-		#reformatMethodAt:
-		#releaseClassCachedState
-		#releaseClassState
 		#removeFromSystem
 		#removeFromSystem:
 		#removeFromSystemUnlogged
-		#removeUninstantiatedSubclassesSilently
 		#removeUnmodifiedCategories
 		#removeUnmodifiedClasses
 		#removeUnmodifiedMethods
@@ -160,7 +133,6 @@ initialize
 		#removeUnusedTempsOf:
 		#removeUnusedTempsRanges:
 		#removeUpToDate
-		#reorganize
 		#setName:
 		#shouldFileOutPool:
 		#shouldFileOutPools
@@ -169,17 +141,12 @@ initialize
 		#shutdown
 		#someObject
 		#subclassResponsibility
-		#standardMethodHeaderFor:
-		#startUp
 		#tinyBenchmarks
+		#tryPrimitive:withArgs:
 		#unload
 		#unpin
-		#whichSelectorsReferTo:
 		#withCaption:chooseFrom:
 		#yourself
-		#zapAllChangeSets
-		#zapAllMethods
-		#zapOrganization
 		#zapSourcePointer
 		#->
 	).! !
@@ -223,7 +190,7 @@ matchesIn: selectors receiver: receiverObject arguments: argumentArray expected:
 	^ matches asSortedCollection.
 ! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 10:07:07'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:01:34'!
 selectorsFor: receiverObject arguments: aNumber
 	"Answer all selectors on the receiver object that take a given number of arguments."
 	| selectors |
@@ -238,6 +205,9 @@ selectorsFor: receiverObject arguments: aNumber
 		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
 		thisArgCount ~= aNumber ::
 			or: [ SkipSet includes: selector ] ::
+			or: [ self class: Behavior understands: selector] ::
+			or: [ self class: ChangeSet understands: selector] ::
+			or: [ self class: ClassDescription understands: selector] ::
 			or: [ selector asLowercase includesSubString: 'halt' ] ::
 			or: [ selector beginsWith: 'fileOut' ] ::
 			or: [ selector beginsWith: 'handleFailing' ].
@@ -255,6 +225,11 @@ selectorsFor: receiverObject arguments: argumentArray expected: expectedObject
 		receiver: receiverObject
 		arguments: argumentArray
 		expected: expectedObject.! !
+
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:04:34'!
+skipSetIncludes: aSelector
+
+	^ SkipSet includes: aSelector! !
 
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
 input
