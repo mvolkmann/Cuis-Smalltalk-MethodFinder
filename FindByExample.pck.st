@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 21 January 2025 at 7:17:05 am'!
+'From Cuis7.3 [latest update: #6991] on 22 January 2025 at 6:48:16 am'!
 'Description '!
-!provides: 'FindByExample' 1 166!
+!provides: 'FindByExample' 1 167!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -151,7 +151,7 @@ initialize
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 10:57:59'!
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/22/2025 06:47:49'!
 matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argumentsCopy matches receiverCopy |
@@ -225,11 +225,6 @@ selectorsFor: receiverObject arguments: argumentArray expected: expectedObject
 		receiver: receiverObject
 		arguments: argumentArray
 		expected: expectedObject.! !
-
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:04:34'!
-skipSetIncludes: aSelector
-
-	^ SkipSet includes: aSelector! !
 
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
 input
