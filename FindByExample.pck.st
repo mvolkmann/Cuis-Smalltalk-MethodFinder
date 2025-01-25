@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 22 January 2025 at 6:48:16 am'!
+'From Cuis7.3 [latest update: #6991] on 24 January 2025 at 6:10:17 pm'!
 'Description '!
-!provides: 'FindByExample' 1 167!
+!provides: 'FindByExample' 1 169!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #FindByExample!
 
@@ -429,14 +429,14 @@ open
 
 	^ self open: SearchBrowser new label: 'Method Finder'! !
 
-!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/12/2025 09:51:10'!
+!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/24/2025 06:37:49'!
 worldMenuOptions
 	^ `{{
 			#submenuOf -> TheWorldMenu openLabel.
 			#itemGroup -> 10.
 			
 			"Text Editor is 10.
-			Worspace is 20.
+			Workspace is 20.
 			Browser is 30.
 			SearchBrowser is 40.
 			MessageNames is 40.
