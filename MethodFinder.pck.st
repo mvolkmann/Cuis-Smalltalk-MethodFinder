@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 26 January 2025 at 7:54:49 am'!
+'From Cuis7.3 [latest update: #6991] on 26 January 2025 at 7:57:05 am'!
 'Description '!
-!provides: 'MethodFinder' 1 170!
+!provides: 'MethodFinder' 1 171!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #MethodFinder!
 
@@ -36,7 +36,87 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/26/2025 07:30:45'!
+!MethodFinder class methodsFor: 'class initialization' stamp: 'RMV 1/21/2025 07:16:30'!
+initialize
+	"Populate the SkipSet class variable."
+	
+	"Skip these selectors because they have
+	side effects that are bad for this method.
+	In addition to these, the ? method also skips all methods
+	defined in the Behavior, ChangeSet, and ClassDescription classes."
+	SkipSet := IdentitySet newFrom: #(
+		#addSharedPool:
+		#allBroadcastAccessesTo:
+		#at:
+		#basicInspect
+		#become
+		#benchmark
+		#browseClassHierarchy
+		#caseError
+		#changed:
+		#chooseAlignment
+		#chooseColor
+		#chooseInstanceVariable
+		#chooseRecentClipping
+		#confirm:
+		#confirm:orCancel:
+		#copyToClipboard
+		#deprecatedMethod
+		#edit
+		#editLabel:
+		#errorImproperStore
+		#executeMethod:
+		#explore
+		#inboundPointers
+		#inform:
+		#inspect
+		#inspectWithLabel:
+		#logAs:
+		#longPrintString
+		#longPrintText
+		#mourn
+		#mustBeBoolean
+		#newFrom:
+		#nextInstance
+		#nextObject
+  		#notify:
+		#notYetImplemented
+		#outboundPointers
+		#pin
+		#print
+		#primitiveError:
+		#profilerFriendlyCall:
+		#removeFromSystem
+		#removeFromSystem:
+		#removeFromSystemUnlogged
+		#removeUnmodifiedCategories
+		#removeUnmodifiedClasses
+		#removeUnmodifiedMethods
+		#removeUnmodifiedMethods:
+		#removeUnreferencedKeys
+		#removeUnusedTempRange:with:
+		#removeUnusedTempsOf:
+		#removeUnusedTempsRanges:
+		#removeUpToDate
+		#setName:
+		#shouldFileOutPool:
+		#shouldFileOutPools
+		#shouldNotHappen
+		#shouldNotImplement
+		#shutdown
+		#someObject
+		#subclassResponsibility
+		#tinyBenchmarks
+		#tryPrimitive:withArgs:
+		#unload
+		#unpin
+		#withCaption:chooseFrom:
+		#yourself
+		#zapSourcePointer
+		#->
+	).! !
+
+!MethodFinder class methodsFor: 'utilities' stamp: 'RMV 1/26/2025 07:30:45'!
 methodFor: anArray
 
 	| arguments compiledMethod expected receiver selectors |
@@ -151,86 +231,6 @@ selectorsFor: receiverObject arguments: argumentArray expected: expectedObject
 		arguments: argumentArray
 		expected: expectedObject.! !
 
-!MethodFinder class methodsFor: 'class initialization' stamp: 'RMV 1/21/2025 07:16:30'!
-initialize
-	"Populate the SkipSet class variable."
-	
-	"Skip these selectors because they have
-	side effects that are bad for this method.
-	In addition to these, the ? method also skips all methods
-	defined in the Behavior, ChangeSet, and ClassDescription classes."
-	SkipSet := IdentitySet newFrom: #(
-		#addSharedPool:
-		#allBroadcastAccessesTo:
-		#at:
-		#basicInspect
-		#become
-		#benchmark
-		#browseClassHierarchy
-		#caseError
-		#changed:
-		#chooseAlignment
-		#chooseColor
-		#chooseInstanceVariable
-		#chooseRecentClipping
-		#confirm:
-		#confirm:orCancel:
-		#copyToClipboard
-		#deprecatedMethod
-		#edit
-		#editLabel:
-		#errorImproperStore
-		#executeMethod:
-		#explore
-		#inboundPointers
-		#inform:
-		#inspect
-		#inspectWithLabel:
-		#logAs:
-		#longPrintString
-		#longPrintText
-		#mourn
-		#mustBeBoolean
-		#newFrom:
-		#nextInstance
-		#nextObject
-  		#notify:
-		#notYetImplemented
-		#outboundPointers
-		#pin
-		#print
-		#primitiveError:
-		#profilerFriendlyCall:
-		#removeFromSystem
-		#removeFromSystem:
-		#removeFromSystemUnlogged
-		#removeUnmodifiedCategories
-		#removeUnmodifiedClasses
-		#removeUnmodifiedMethods
-		#removeUnmodifiedMethods:
-		#removeUnreferencedKeys
-		#removeUnusedTempRange:with:
-		#removeUnusedTempsOf:
-		#removeUnusedTempsRanges:
-		#removeUpToDate
-		#setName:
-		#shouldFileOutPool:
-		#shouldFileOutPools
-		#shouldNotHappen
-		#shouldNotImplement
-		#shutdown
-		#someObject
-		#subclassResponsibility
-		#tinyBenchmarks
-		#tryPrimitive:withArgs:
-		#unload
-		#unpin
-		#withCaption:chooseFrom:
-		#yourself
-		#zapSourcePointer
-		#->
-	).! !
-
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
 input
 
@@ -240,6 +240,11 @@ input
 keystrokeAction: aBlock
 
 	^ textModelMorph keystrokeAction: aBlock! !
+
+!LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/13/2025 08:39:07'!
+model
+
+	^ textModelMorph model! !
 
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/10/2025 18:40:24'!
 text
@@ -269,16 +274,6 @@ buildMorph: labelString
 	self padding: 0. "must set AFTER separation"
 	self addMorph: label.
 	self addMorph: textModelMorph proportionalWidth: 1.! !
-
-!LabelledInput methodsFor: 'as yet unclassified' stamp: 'RMV 1/10/2025 18:53:44'!
-focus
-
-	textModelMorph focusText! !
-
-!LabelledInput methodsFor: 'as yet unclassified' stamp: 'RMV 1/13/2025 08:39:07'!
-model
-
-	^ textModelMorph model! !
 
 !LabelledInput class methodsFor: 'instance creation' stamp: 'RMV 1/10/2025 18:41:00'!
 label: aString
