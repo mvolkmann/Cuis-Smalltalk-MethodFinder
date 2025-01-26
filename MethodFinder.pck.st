@@ -1,37 +1,37 @@
 'From Cuis7.3 [latest update: #6991] on 24 January 2025 at 6:10:17 pm'!
 'Description '!
-!provides: 'FindByExample' 1 169!
+!provides: 'MethodFinder' 1 169!
 !requires: 'SearchBrowser' 1 45 nil!
-SystemOrganization addCategory: #FindByExample!
+SystemOrganization addCategory: #MethodFinder!
 
 
-!classDefinition: #MethodFinder category: #FindByExample!
+!classDefinition: #MethodFinder category: #MethodFinder!
 MethodSet subclass: #MethodFinder
 	instanceVariableNames: ''
 	classVariableNames: 'SkipSet'
 	poolDictionaries: ''
-	category: 'FindByExample'!
-!classDefinition: 'MethodFinder class' category: #FindByExample!
+	category: 'MethodFinder'!
+!classDefinition: 'MethodFinder class' category: #MethodFinder!
 MethodFinder class
 	instanceVariableNames: ''!
 
-!classDefinition: #LabelledInput category: #FindByExample!
+!classDefinition: #LabelledInput category: #MethodFinder!
 LayoutMorph subclass: #LabelledInput
 	instanceVariableNames: 'label textModelMorph'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'FindByExample'!
-!classDefinition: 'LabelledInput class' category: #FindByExample!
+	category: 'MethodFinder'!
+!classDefinition: 'LabelledInput class' category: #MethodFinder!
 LabelledInput class
 	instanceVariableNames: 'label model'!
 
-!classDefinition: #MethodFinderWindow category: #FindByExample!
+!classDefinition: #MethodFinderWindow category: #MethodFinder!
 SearchBrowserWindow subclass: #MethodFinderWindow
 	instanceVariableNames: 'argumentsInput expectedInput findButton receiverInput statusLabel'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'FindByExample'!
-!classDefinition: 'MethodFinderWindow class' category: #FindByExample!
+	category: 'MethodFinder'!
+!classDefinition: 'MethodFinderWindow class' category: #MethodFinder!
 MethodFinderWindow class
 	instanceVariableNames: ''!
 
@@ -450,7 +450,7 @@ worldMenuOptions
 			#balloonText -> 'A tool for finding methods that return a given answer.'.
 		} asDictionary}`! !
 
-!PluggableButtonMorph methodsFor: '*FindByExample' stamp: 'RMV 1/16/2025 07:57:30'!
+!PluggableButtonMorph methodsFor: '*MethodFinder' stamp: 'RMV 1/16/2025 07:57:30'!
 enable: aBoolean
 
 	aBoolean ifTrue: [ self enable ] ifFalse: [ self disable ]! !
