@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 24 January 2025 at 6:10:17 pm'!
+'From Cuis7.3 [latest update: #6991] on 26 January 2025 at 7:54:49 am'!
 'Description '!
-!provides: 'MethodFinder' 1 169!
+!provides: 'MethodFinder' 1 170!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #MethodFinder!
 
@@ -36,16 +36,10 @@ MethodFinderWindow class
 	instanceVariableNames: ''!
 
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:00:48'!
-class: aClass understands: selector
+!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/26/2025 07:30:45'!
+methodFor: anArray
 
-	^ aClass canUnderstand: selector :: or: [ aClass canUnderstand: selector ]
-! !
-
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 08:03:53'!
-find: anArray
-
-	| arguments compiledMethod expected message receiver selectors |
+	| arguments compiledMethod expected receiver selectors |
 	
 	anArray isKindOf: SequenceableCollection :: ifFalse: [
 		'argument must be a kind of SequenceableCollection' print.
@@ -61,17 +55,103 @@ find: anArray
 	arguments := anArray allButFirst allButLast.
 	selectors := self selectorsFor: receiver arguments: arguments expected: expected.
 		
-	message := selectors size caseOf: {
-		[0] -> [ 'No matching methods were found.' ].
-		[1] -> [ '1 method was found.' ]
-	} otherwise: [ '{1} methods were found.' format: { selectors size } ].
+	self message: selectors :: print.
 	
 	selectors do: [ :selector |
 		compiledMethod := receiver class lookupSelector: selector.
 		'- {1} {2}' format: { compiledMethod methodClass. compiledMethod selector } :: print.
 	].! !
 
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:16:30'!
+!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/21/2025 07:00:48'!
+class: aClass understands: selector
+
+	^ aClass canUnderstand: selector :: or: [ aClass canUnderstand: selector ]
+! !
+
+!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/22/2025 06:47:49'!
+matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
+	"Find all methods on the receiver object that take the arguments and return expected object."
+	| actualObject argumentsCopy matches receiverCopy |
+	
+	"count := 0."
+
+	"Find all the selectors that return the expected value
+	when sent to the receiver with the provided arguments."
+	matches := selectors select: [ :selector |
+		"count := count + 1.
+		'{1}: {2}' format: { count. selector } :: print."
+			
+		"Some methods modified the receiver, so we operate on a copy."
+		receiverCopy := receiverObject veryDeepCopy.
+		
+		"Some methods modify arguments, so we operate on a copy."
+		argumentsCopy := argumentArray veryDeepCopy.
+		
+		"See comment below.
+		startTime := Time now."
+		
+		actualObject := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
+		"actualObject logAs: 'actualObject'."
+		
+		"Use this code to find methods that take too long to run.
+		durationNanos := (Time now - startTime) totalNanoSeconds.
+		durationNanos > 70000 ifTrue: [
+			'{1} ran for {2}' format: { selector. durationNanos } :: print.
+		]."
+		
+		actualObject isKindOf: Float :: and: [ expectedObject isKindOf: Float] ::
+			ifTrue: [ actualObject  - expectedObject :: abs <= 0.001 ]
+			ifFalse: [ actualObject = expectedObject ].
+	].
+
+	^ matches asSortedCollection.
+! !
+
+!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/26/2025 07:34:15'!
+message: selectorColl
+
+	^ selectorColl size caseOf: {
+		[0] -> [ 'No matching methods were found.' ].
+		[1] -> [ '1 matching method was found.' ]
+	} otherwise: [ '{1} matching methods were found.' format: { selectorColl size } ].! !
+
+!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/21/2025 07:01:34'!
+selectorsFor: receiverObject arguments: aNumber
+	"Answer all selectors on the receiver object that take a given number of arguments."
+	| selectors |
+
+	"Find all the selectors in the receiver class and its subclasses."	
+	selectors := receiverObject class allSelectors.
+
+	"Return only the selectors take the number of arguments provided,
+	and skip those that have bad side effects."
+	^​ selectors reject: [ :selector |
+		| thisArgCount |
+		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
+		thisArgCount ~= aNumber ::
+			or: [ SkipSet includes: selector ] ::
+			or: [ self class: Behavior understands: selector] ::
+			or: [ self class: ChangeSet understands: selector] ::
+			or: [ self class: ClassDescription understands: selector] ::
+			or: [ selector asLowercase includesSubString: 'halt' ] ::
+			or: [ selector beginsWith: 'fileOut' ] ::
+			or: [ selector beginsWith: 'handleFailing' ].
+	].! !
+
+!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/19/2025 08:03:53'!
+selectorsFor: receiverObject arguments: argumentArray expected: expectedObject
+	"Answer all selectors on the receiver object that take the arguments and return expected object.
+	This combines the use of two other class methods in this class."
+	| selectors |
+
+	selectors := self selectorsFor: receiverObject arguments: argumentArray size.
+	^ self
+		matchesIn: selectors
+		receiver: receiverObject
+		arguments: argumentArray
+		expected: expectedObject.! !
+
+!MethodFinder class methodsFor: 'class initialization' stamp: 'RMV 1/21/2025 07:16:30'!
 initialize
 	"Populate the SkipSet class variable."
 	
@@ -150,81 +230,6 @@ initialize
 		#zapSourcePointer
 		#->
 	).! !
-
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/22/2025 06:47:49'!
-matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
-	"Find all methods on the receiver object that take the arguments and return expected object."
-	| actualObject argumentsCopy matches receiverCopy |
-	
-	"count := 0."
-
-	"Find all the selectors that return the expected value
-	when sent to the receiver with the provided arguments."
-	matches := selectors select: [ :selector |
-		"count := count + 1.
-		'{1}: {2}' format: { count. selector } :: print."
-			
-		"Some methods modified the receiver, so we operate on a copy."
-		receiverCopy := receiverObject veryDeepCopy.
-		
-		"Some methods modify arguments, so we operate on a copy."
-		argumentsCopy := argumentArray veryDeepCopy.
-		
-		"See comment below.
-		startTime := Time now."
-		
-		actualObject := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
-		"actualObject logAs: 'actualObject'."
-		
-		"Use this code to find methods that take too long to run.
-		durationNanos := (Time now - startTime) totalNanoSeconds.
-		durationNanos > 70000 ifTrue: [
-			'{1} ran for {2}' format: { selector. durationNanos } :: print.
-		]."
-		
-		actualObject isKindOf: Float :: and: [ expectedObject isKindOf: Float] ::
-			ifTrue: [ actualObject  - expectedObject :: abs <= 0.001 ]
-			ifFalse: [ actualObject = expectedObject ].
-	].
-
-	^ matches asSortedCollection.
-! !
-
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/21/2025 07:01:34'!
-selectorsFor: receiverObject arguments: aNumber
-	"Answer all selectors on the receiver object that take a given number of arguments."
-	| selectors |
-
-	"Find all the selectors in the receiver class and its subclasses."	
-	selectors := receiverObject class allSelectors.
-
-	"Return only the selectors take the number of arguments provided,
-	and skip those that have bad side effects."
-	^​ selectors reject: [ :selector |
-		| thisArgCount |
-		thisArgCount := selector first isAlphaNumeric ifTrue: [ selector occurrencesOf: $: ] ifFalse: 1.
-		thisArgCount ~= aNumber ::
-			or: [ SkipSet includes: selector ] ::
-			or: [ self class: Behavior understands: selector] ::
-			or: [ self class: ChangeSet understands: selector] ::
-			or: [ self class: ClassDescription understands: selector] ::
-			or: [ selector asLowercase includesSubString: 'halt' ] ::
-			or: [ selector beginsWith: 'fileOut' ] ::
-			or: [ selector beginsWith: 'handleFailing' ].
-	].! !
-
-!MethodFinder class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 08:03:53'!
-selectorsFor: receiverObject arguments: argumentArray expected: expectedObject
-	"Answer all selectors on the receiver object that take the arguments and return expected object.
-	This combines the use of two other class methods in this class."
-	| selectors |
-
-	selectors := self selectorsFor: receiverObject arguments: argumentArray size.
-	^ self
-		matchesIn: selectors
-		receiver: receiverObject
-		arguments: argumentArray
-		expected: expectedObject.! !
 
 !LabelledInput methodsFor: 'accessing' stamp: 'RMV 1/14/2025 19:27:40'!
 input
@@ -424,12 +429,7 @@ initialize
 
 ! !
 
-!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/19/2025 07:58:47'!
-open
-
-	^ self open: SearchBrowser new label: 'Method Finder'! !
-
-!MethodFinderWindow class methodsFor: 'as yet unclassified' stamp: 'RMV 1/24/2025 06:37:49'!
+!MethodFinderWindow class methodsFor: 'menu-world' stamp: 'RMV 1/24/2025 06:37:49'!
 worldMenuOptions
 	^ `{{
 			#submenuOf -> TheWorldMenu openLabel.
@@ -449,6 +449,11 @@ worldMenuOptions
 			#icon -> #inspectIcon.
 			#balloonText -> 'A tool for finding methods that return a given answer.'.
 		} asDictionary}`! !
+
+!MethodFinderWindow class methodsFor: 'ui' stamp: 'RMV 1/19/2025 07:58:47'!
+open
+
+	^ self open: SearchBrowser new label: 'Method Finder'! !
 
 !PluggableButtonMorph methodsFor: '*MethodFinder' stamp: 'RMV 1/16/2025 07:57:30'!
 enable: aBoolean
