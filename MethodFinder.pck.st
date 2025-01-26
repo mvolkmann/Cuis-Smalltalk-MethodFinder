@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 26 January 2025 at 7:57:05 am'!
+'From Cuis7.3 [latest update: #6991] on 26 January 2025 at 9:35:28 am'!
 'Description '!
-!provides: 'MethodFinder' 1 171!
+!provides: 'MethodFinder' 1 173!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #MethodFinder!
 
@@ -35,6 +35,13 @@ SearchBrowserWindow subclass: #MethodFinderWindow
 MethodFinderWindow class
 	instanceVariableNames: ''!
 
+
+!MethodFinder methodsFor: 'initialization' stamp: 'RMV 1/26/2025 09:34:22'!
+initialize
+
+	super initialize.
+	
+	messageList := Array new. "Why doesn't MethodSet initialize this?"! !
 
 !MethodFinder class methodsFor: 'class initialization' stamp: 'RMV 1/21/2025 07:16:30'!
 initialize
@@ -148,7 +155,7 @@ class: aClass understands: selector
 	^ aClass canUnderstand: selector :: or: [ aClass canUnderstand: selector ]
 ! !
 
-!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/22/2025 06:47:49'!
+!MethodFinder class methodsFor: 'private' stamp: 'RMV 1/26/2025 08:20:46'!
 matchesIn: selectors receiver: receiverObject arguments: argumentArray expected: expectedObject
 	"Find all methods on the receiver object that take the arguments and return expected object."
 	| actualObject argumentsCopy matches receiverCopy |
@@ -170,7 +177,10 @@ matchesIn: selectors receiver: receiverObject arguments: argumentArray expected:
 		"See comment below.
 		startTime := Time now."
 		
-		actualObject := [receiverCopy perform: selector withArguments: argumentsCopy] on: Error do: [ :ex | nil ].
+		actualObject :=
+			[receiverCopy perform: selector withArguments: argumentsCopy]
+				on: Error
+				do: [ :ex | nil ].
 		"actualObject logAs: 'actualObject'."
 		
 		"Use this code to find methods that take too long to run.
@@ -445,10 +455,10 @@ worldMenuOptions
 			#balloonText -> 'A tool for finding methods that return a given answer.'.
 		} asDictionary}`! !
 
-!MethodFinderWindow class methodsFor: 'ui' stamp: 'RMV 1/19/2025 07:58:47'!
+!MethodFinderWindow class methodsFor: 'ui' stamp: 'RMV 1/26/2025 09:35:03'!
 open
 
-	^ self open: SearchBrowser new label: 'Method Finder'! !
+	^ self open: MethodFinder new label: 'Method Finder'! !
 
 !PluggableButtonMorph methodsFor: '*MethodFinder' stamp: 'RMV 1/16/2025 07:57:30'!
 enable: aBoolean
