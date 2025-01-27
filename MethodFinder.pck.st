@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 26 January 2025 at 9:35:28 am'!
+'From Cuis7.3 [latest update: #6991] on 27 January 2025 at 4:09:21 pm'!
 'Description '!
-!provides: 'MethodFinder' 1 173!
+!provides: 'MethodFinder' 1 174!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #MethodFinder!
 
@@ -123,7 +123,7 @@ initialize
 		#->
 	).! !
 
-!MethodFinder class methodsFor: 'utilities' stamp: 'RMV 1/26/2025 07:30:45'!
+!MethodFinder class methodsFor: 'utilities' stamp: 'RMV 1/27/2025 16:08:47'!
 methodFor: anArray
 
 	| arguments compiledMethod expected receiver selectors |
@@ -345,7 +345,7 @@ evaluate: aString
 		on: Error do: [ :ex | nil ].
 ! !
 
-!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/19/2025 07:56:26'!
+!MethodFinderWindow methodsFor: 'private' stamp: 'RMV 1/27/2025 16:08:34'!
 findMethods
 	| arguments compiledMethod expected message methods receiver selectors |
 	
@@ -360,7 +360,7 @@ findMethods
 
 	arguments := argumentsInput text isEmpty
 		ifTrue: [ #() ]
-		ifFalse: [ self evaluate: '#(', argumentsInput text, ')' ].
+		ifFalse: [ self evaluate: '{', argumentsInput text, '}' ].
 	arguments ifNil: [
 		statusLabel contents: 'Arguments expression is invalid.'.
 		^ nil.
