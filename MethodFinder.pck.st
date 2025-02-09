@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6991] on 27 January 2025 at 4:09:21 pm'!
+'From Cuis7.3 [latest update: #7045] on 9 February 2025 at 3:18:32 pm'!
 'Description '!
-!provides: 'MethodFinder' 1 174!
+!provides: 'MethodFinder' 1 175!
 !requires: 'SearchBrowser' 1 45 nil!
 SystemOrganization addCategory: #MethodFinder!
 
